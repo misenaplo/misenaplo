@@ -1,0 +1,16 @@
+module.exports.unauthenticated=-1
+module.exports.believer=0;
+module.exports.signer=1;
+module.exports.catechist=2;
+module.exports.parishOfficer=3;
+module.exports.chaplain=4;
+module.exports.parishPriest=5;
+module.exports.deanOfficer=6;
+module.exports.dean=7;
+module.exports.bishopOfficer=8;
+module.exports.bishop=9;
+module.exports.archbishopOfficer = 10;
+module.exports.archbishop=11;
+module.exports.popeOfficer = 12;
+module.exports.pope = 13;
+module.exports.admin = 14;
