@@ -131,10 +131,20 @@ const routes = [
       minUserRole: roles.unauthenticated,
       showInMenu: false
     },
-    
-    
-
   },
+
+  {
+    path: '/scanTask',
+    name: 'scanTask',
+    component: () => import('../views/scanTask.vue'),
+
+    meta: {
+      minUserRole: roles.catechist,
+      showInMenu: true,
+      name: "Csoportba rögzítés",
+      icon: 'fa-qrcode'
+    }
+  }
 
 
 
