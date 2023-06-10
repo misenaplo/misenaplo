@@ -48,7 +48,7 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
       attributes: ["createdAt"],
       where: {
         createdAt: {
-          [Op.between]: [startDate, endDate]
+          [Op.between]: [startDate, endDate+" 23:59:59"]
         }
       },
       required: minimalAttendance>0
