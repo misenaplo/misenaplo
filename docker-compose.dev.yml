@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile.development
+    volumes:
+      - "./backend:/home/node/app/"
+    ports:
+      - 3000:3000
+    # Definiálhatóak a környezeti változók
+    env_file:
+      - ./backend/backend.env
+    environment:
+      - TZ=Europe/Budapest
+    
+    stdin_open: true
+    tty: true
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile.development
+    volumes:
+      - "./frontend:/home/node/app/"
+    environment:
+      - TZ=Europe/Budapest
+    ports:
+      - 8080:8080
+    stdin_open: true
+    tty: true
+
+  db:
+    image: mariadb:10.6
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: my_secret_password
+      MYSQL_DATABASE: app_db
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: db_user_pass
+    ports:
+      - "6033:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
+
+
+
+volumes:
+  mysql_data:

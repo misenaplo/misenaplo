@@ -1,0 +1,14 @@
+FROM node:16 AS frontend
+
+USER root
+RUN apt-get update && apt-get install -y dnsutils tzdata \
+ && apt-get clean
+
+WORKDIR /home/node/app
+
+
+# Vue CLI telepítése (sokáig fog tartani!)
+
+USER node
+
+CMD ["sh", "./entrypoint.sh"]
