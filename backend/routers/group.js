@@ -43,6 +43,24 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         })
     }
 
+    router.get('/myList', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), async function (req,res,next) {
+        const groups = await sequelize.models.Group.findAll({
+            include: [
+                {
+                    model: sequelize.models.User,
+                    as: 'Leader',
+                    where: {
+                        id: req.user.id
+                    },
+                    attributes: ['id'],
+                    required: true
+                }
+            ]
+        })
+
+        return res.json({success: true, error: null, data: {groups}})
+    })
+
     router.get('/', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), async function (req, res, next) {
         if (req.query.search !== undefined && (!isString(req.query.search) && req.query.search != "")) {
             res.status(400)
@@ -232,6 +250,9 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 
     router.get("/:id/generateCards",middlewares.isAuthenticated,middlewares.roleCheck(roles.catechist),middlewares.includeToReq.group(sequelize,null,null)["req.params.id"], middlewares.hasPermission.group(permissions.getDetails), async function(req,res,next) {
         const candidates = await req.group.getCandidates({attributes: ['id', 'name'], through: {attributes: []}})
+        if(candidates.length==0) {
+            return res.send("<h1>Nincsen résztvevő a csoportban</h1>")
+        }
         const zip = await multipleCardGenerator(candidates);
         res.setHeader('Content-Disposition', contentDisposition(`Kártyák ${req.group.name}.zip`.replace(/[#<>%&*{}?/\\$+!`~|"=:@]/g,""),  {type: "attachment"}))
         return res.send(Buffer.from(zip, 'base64'));

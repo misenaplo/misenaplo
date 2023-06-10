@@ -10,7 +10,27 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
     const router = express.Router()
 
     router.get('/candidate', middlewares.requiredField.query(['candidateId']), middlewares.includeToReq.candidate(sequelize,null,null,null)["req.query.candidateId"], async function (req, res, next) {
+        const minutes = 20 * (60 * 1000)
         if(req.user && req.user.role>=roles.signer){
+            if(req.session.selectedGroup) {
+                const group = await sequelize.models.Group.findOne({where: {
+                    id: req.session.selectedGroup.id
+                }})
+                await req.candidate.addGroup(group);
+                return res.send(`<!DOCTYPE html><html><head><title>QR-beolvasás</title><meta charset="UTF-8" /><meta http-equiv="refresh" content="2; URL=https://misenaplo.hu/group/${req.session.selectedGroup.id}" /></head><body><h1>${req.candidate.name} OK, hozzáadva a(z) ${req.session.selectedGroup.name} csoporthoz.</h1></body></html>`)    
+
+            }
+            var attendance = await req.candidate.getAttendances({
+                where: {
+                    SignerId: req.user.id,
+                    createdAt: {
+                       [Op.gte]: new Date(Date.now()-minutes)
+                    }
+                }
+            })
+            if(attendance.length!=0) {
+                return res.send(`<!DOCTYPE html><html><head><title>QR-beolvasás</title><meta charset="UTF-8" /></head><body><h1>${req.candidate.name} HIBA! 20 percen belüli dupla rögzítés</h1></body></html>`)    
+            }
             await req.candidate.createAttendance({
                 SignerId: req.user.id
             })
@@ -41,6 +61,42 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 
         res.send({success: true, error: null, data: null})
     })
+    router.get('/task', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), async function (req,res,next) {
+        return res.json({success: true, error: null, data: {selectedGroup: req.session.selectedGroup?.id}})
+    })
+
+    router.post('/task', middlewares.isAuthenticated,  middlewares.roleCheck(roles.catechist), middlewares.requiredField.body(["groupId"]), async function (req,res,next) {
+        if(req.body.groupId==null) {
+            delete req.session.selectedGroup;
+            return res.json({success: true, error: null, data: null})
+        }
+        const group = await sequelize.models.Group.findOne({
+            where: {
+                id: req.body.groupId
+            },
+            include: [
+                {
+                    model: sequelize.models.User,
+                    as: 'Leader',
+                    where: {
+                        id: req.user.id
+                    },
+                    attributes: ['id'],
+                    required: true
+                }
+            ],
+            attributes: ["id", "name"]
+        })
+
+        if(!group) {
+            return res.status(404).json(errorGenerator.INSTANCE_NOT_FOUND("Ön által vezetett csoport nem található"))
+        }
+
+        req.session.selectedGroup = group;
+
+        return res.json({success: true, error: null, data: null})
+    })
+
 
     return router
 }
