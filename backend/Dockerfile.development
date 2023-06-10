@@ -1,0 +1,12 @@
+FROM node:16 AS backend
+
+USER root
+RUN apt-get update && apt-get install -y dnsutils tzdata \
+ && mkdir -p /home/node/app && chown node:node -R /home/node \
+ && apt-get clean
+
+RUN npm i -g nodemon
+USER node
+WORKDIR /home/node/app
+
+CMD ["sh", "./entrypoint.sh"]
