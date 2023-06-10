@@ -22,6 +22,25 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         }
     })
 
+    router.delete('/candidate/:id', middlewares.roleCheck(roles.signer), middlewares.includeToReq.candidate(sequelize,null,null,null)["req.params.id"], async function (req, res, next) {
+        const minutes = 20 * (60 * 1000)
+        var attendance = await req.candidate.getAttendances({
+            where: {
+                SignerId: req.user.id,
+                createdAt: {
+                   [Op.gte]: new Date(Date.now()-minutes)
+                }
+            }
+        })
+        if(attendance.length==0) {
+            return res.send({success: false, error: null, data: null})
+        }
+        attendance.forEach(a => {
+            a.destroy();
+        });
+
+        res.send({success: true, error: null, data: null})
+    })
 
     return router
 }

@@ -4,10 +4,13 @@
             <v-data-table :headers="headers" :items="attendances">
                 <template v-slot:top>
                     <v-row>
-                        <v-col cols="12" :sm="4">
+                        <v-col cols="12" :sm="3">
                             <h2>{{ candidateName }} részvételei szentmiséken</h2>
                         </v-col>
-                        <v-col cols="12" :sm="4">
+                        <v-col v-if="$store.getters.userRole >= roles.signer" cols="12" :sm="3">
+                            <v-btn color="red accent-4" rounded @click="undo()"><v-icon>fa-undo</v-icon>Visszavonás (20 percen belül)</v-btn>
+                        </v-col>
+                        <v-col cols="12" :sm="$store.getters.userRole >= roles.signer ? 3 : 4">
                             <v-menu v-model="dateMenus.begin" :close-on-content-click="false" :nudge-right="40"
                                 transition="scale-transition" offset-y min-width="auto">
                                 <template v-slot:activator="{ on, attrs }">
@@ -19,7 +22,7 @@
                                     @input="dateMenus.begin = false" />
                             </v-menu>
                         </v-col>
-                        <v-col cols="12" :sm="4">
+                        <v-col cols="12" :sm="$store.getters.userRole >= roles.signer ? 3 : 4">
                             <v-menu v-model="dateMenus.end" :close-on-content-click="false" :nudge-right="40"
                                 transition="scale-transition" offset-y min-width="auto">
                                 <template v-slot:activator="{ on, attrs }">
@@ -45,6 +48,8 @@
 </template>
 
 <script>
+import roles from '../plugins/roles';
+
 export default {
     props: {
         candidateId: null,
@@ -91,7 +96,8 @@ export default {
             dateMenus: {
                 begin: false,
                 end: false
-            }
+            },
+            roles
         }
     },
     computed: {
@@ -126,6 +132,12 @@ export default {
 
     },
     methods: {
+        undo: function() {
+            this.axios({url: `scan/candidate/${this.candidateId}`, method: "DELETE"}).then(response => {
+                this.getAttendance(true)
+                this.$store.commit('setSnack', response.data.success? "Visszavonva." : "Már nem lehet visszavonni.")
+            })
+        },
         getAttendance: function (name) {
             this.axios({ url: `attendance/${this.candidateId?'candidate':''}`, method: "GET", params: { candidateId: this.candidateId, begin: this.begin, end: this.end, attributes: this.attributes, ...(name ? { withName: 1 } : {}) } }).then((response) => {
                 if (response.data.success) {
