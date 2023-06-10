@@ -7,7 +7,7 @@ module.exports = (sequelize) => {
 		store: new SequelizeStore({
 			db: sequelize
 		}),
-		resave: false, 
+		resave: true, 
 		saveUninitialized: false, 
 		cookie: {maxAge: 12*60*60*1000}
 	})
