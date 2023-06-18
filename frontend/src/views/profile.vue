@@ -22,10 +22,6 @@
 					</td>
 				</tr>
 				<tr>
-					<th style="text-align: right">Felhasználónév</th>
-					<td colspan="2" style="text-align: center">{{ profile.username }}</td>
-				</tr>
-				<tr>
 					<th style="text-align: right">Jelszó</th>
 					<td style="text-align: center">TITOK</td>
 					<td>

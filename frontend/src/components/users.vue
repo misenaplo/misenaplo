@@ -92,9 +92,6 @@
 								v-model="dialogs.newUser.user.email" rounded outlined />
 
 
-							<v-text-field prepend-inner-icon="fa-user" label="Felhasználónév"
-								v-model="dialogs.newUser.user.username" rounded outlined />
-
 							<v-select prepend-inner-icon="fa-user-tag" label="Jogkör"
 								v-model="dialogs.newUser.user.role" rounded outlined :items="roleSelect"
 								item-text="roleName" item-value="role" />
@@ -103,11 +100,11 @@
 					</v-card-text>
 					<v-card-actions>
 						<v-btn color="blue darken-1" text
-							@click="dialogs.newUser.show = false, dialogs.newUser.user.firstname = '', dialogs.newUser.user.lastname = '', dialogs.newUser.user.email = '', dialogs.newUser.user.username = '', dialogs.newUser.user.role = -1">
+							@click="dialogs.newUser.show = false, dialogs.newUser.user.firstname = '', dialogs.newUser.user.lastname = '', dialogs.newUser.user.email = '', dialogs.newUser.user.role = -1">
 							Mégsem
 						</v-btn>
 						<v-btn color="blue darken-1" text @click="newUser()"
-							v-if="dialogs.newUser.user.firstname != '' && dialogs.newUser.user.lastname != '' && dialogs.newUser.user.email != '' && dialogs.newUser.user.username != '' && dialogs.newUser.user.role >= 0">
+							v-if="dialogs.newUser.user.firstname != '' && dialogs.newUser.user.lastname != '' && dialogs.newUser.user.email != '' && dialogs.newUser.user.role >= 0">
 							Hozzáadás
 						</v-btn>
 
@@ -122,11 +119,8 @@
 					</v-card-title>
 					<v-card-text>
 						<v-container>
-
-
-
-							<v-text-field prepend-inner-icon="fa-user" label="Email-cím vagy felhasználónév"
-								v-model="dialogs.addUserToThisUnit.emailOrUsername" rounded outlined />
+							<v-text-field prepend-inner-icon="fa-user" label="Email-cím"
+								v-model="dialogs.addUserToThisUnit.email" rounded outlined />
 
 							<v-select prepend-inner-icon="fa-user-tag" label="Új jogkör"
 								v-model="dialogs.addUserToThisUnit.newRole" rounded outlined :items="roleSelect"
@@ -135,11 +129,11 @@
 					</v-card-text>
 					<v-card-actions>
 						<v-btn color="blue darken-1" text
-							@click="dialogs.addUserToThisUnit.show = false, dialogs.addUserToThisUnit.emailOrUsername = ''">
+							@click="dialogs.addUserToThisUnit.show = false, dialogs.addUserToThisUnit.email = ''">
 							Mégsem
 						</v-btn>
 						<v-btn color="blue darken-1" text @click="addUserToThisUnit()"
-							v-if="dialogs.addUserToThisUnit.newRole>0&&dialogs.addUserToThisUnit.emailOrUsername!=''">
+							v-if="dialogs.addUserToThisUnit.newRole>0&&dialogs.addUserToThisUnit.email!=''">
 							Hozzáadás
 						</v-btn>
 
@@ -183,11 +177,7 @@ export default {
 					value: "email",
 					...headerProps
 				},
-				{
-					text: "FELHASZNÁLÓNÉV",
-					value: "username",
-					...headerProps
-				},
+
 				{
 					text: "JOGKÖR",
 					value: "role",
@@ -211,14 +201,13 @@ export default {
 						firstname: '',
 						lastname: '',
 						email: '',
-						username: '',
 						role: -1,
 					},
 
 				},
 				addUserToThisUnit: {
 					show: false,
-					emailOrUsername: '',
+					email: '',
 					newRole: 1
 				}
 			}
@@ -253,7 +242,6 @@ export default {
 						firstname: '',
 						lastname: '',
 						email: '',
-						username: '',
 						role: -1,
 					};
 					this.dialogs.newUser.show = false;
@@ -264,10 +252,10 @@ export default {
 			})
 		},
 		addUserToThisUnit: function() {
-			this.axios({url: "user/addToOrganizationUnit", method: "POST", data: {emailOrUsername: this.dialogs.addUserToThisUnit.emailOrUsername, newRole: this.dialogs.addUserToThisUnit.newRole, ...(this.parishId?{parishId: this.parishId}:{})}}).then((response) => {
+			this.axios({url: "user/addToOrganizationUnit", method: "POST", data: {email: this.dialogs.addUserToThisUnit.email, newRole: this.dialogs.addUserToThisUnit.newRole, ...(this.parishId?{parishId: this.parishId}:{})}}).then((response) => {
 				if(response.data.success) {
 					this.users.push(response.data.data.user);
-					this.dialogs.addUserToThisUnit.emailOrUsername='';
+					this.dialogs.addUserToThisUnit.email='';
 					this.dialogs.addUserToThisUnit.show=false;
 					this.$store.commit('setSnack', response.data.data.roleMessage);
 				}

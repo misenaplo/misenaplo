@@ -51,16 +51,6 @@
                 </td>
               </tr>
               <tr>
-                <th style="text-align: right">Felhasználónév</th>
-                <td style="text-align: center">{{ user.username }}</td>
-                <td>
-                  <v-btn color="blue"
-                    @click="dialogs.editUser.show = true, dialogs.editUser.changedProperty = 'username', dialogs.editUser.changedValue = user.username">
-                    Módosítás<v-icon>fa-edit</v-icon>
-                  </v-btn>
-                </td>
-              </tr>
-              <tr>
                 <th style="text-align: right">Jelszó</th>
                 <td style="text-align: center" colspan="2">TITOK</td>
               </tr>
@@ -82,15 +72,14 @@
           <v-card>
             <v-card-title>
               <span class="headline">{{ dialogs.editUser.changedProperty == 'fullname' ? "Név" :
-                  (dialogs.editUser.changedProperty == "email" ? "Email-cím" : (dialogs.editUser.changedProperty ==
-                    "username" ? "Felhasználónév" : "Jelszó"))
+                  (dialogs.editUser.changedProperty == "email" ? "Email-cím" :  "Jelszó")
               }} módosítása</span>
             </v-card-title>
             <v-card-text>
               <v-container>
                 <v-text-field v-model="dialogs.editUser.changedValue"
-                  :label="dialogs.editUser.changedProperty == 'fullname' ? 'Név' : (dialogs.editUser.changedProperty == 'email' ? 'Email-cím' : (dialogs.editUser.changedProperty == 'username' ? 'Felhasználónév' : 'Új jelszó'))"
-                  :prepend-inner-icon="dialogs.editUser.changedProperty == 'fullname' || dialogs.editUser.changedProperty == 'username' ? 'fa-user' : (dialogs.editUser.changedProperty == 'email' ? 'fa-envelope' : 'fa-key')"
+                  :label="dialogs.editUser.changedProperty == 'fullname' ? 'Név' : (dialogs.editUser.changedProperty == 'email' ? 'Email-cím' : 'Új jelszó')"
+                  :prepend-inner-icon="dialogs.editUser.changedProperty == 'fullname' ? 'fa-user' : (dialogs.editUser.changedProperty == 'email' ? 'fa-envelope' : 'fa-key')"
                   :type="dialogs.editUser.changedProperty == 'password' ? 'password' : 'text'">
                 </v-text-field>
               </v-container>
