@@ -24,22 +24,22 @@ module.exports = function(passport, sequelize) {
     	}
     });
 
-    passport.use("local-login", new LocalStrategy(
-		async function (username, password, done) {
+    passport.use("local-login", new LocalStrategy({usernameField: "email"},
+		async function (email, password, done) {
 			if (password.length > 50) {
 				return done(null, false, { code: codes.FAILED_VALIDATION, message: "Túl hosszú jelszó!" })
             }
 			var user = await User.findOne({
 				where: {
 					[Op.or]: [
-						{username: username},
-						{email: username}
+						{username: email},
+						{email: email}
 					]
 				}
 			})
 			if (user === null)
 				return done(null, false, {code: codes.INVALID_CREDENTIALS, message: "Helytelen jelszó vagy felhasználónév!"});
-			if (user.username !== username && user.email !== username)
+			if (user.username !== email && user.email !== email)
 				return done(null, false, {code: codes.INVALID_CREDENTIALS, message: "Helytelen jelszó vagy felhasználónév!"});
 			if (bcrypt.compareSync(password, user.password)) {
 				if (user.oneTimePassword instanceof String || typeof user.oneTimePassword === 'string') {

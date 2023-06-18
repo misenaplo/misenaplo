@@ -15,18 +15,15 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 
 	/** POST Bejelentkezés
 	 *
-	 * Paraméterei: username, password
+	 * Paraméterei: email, password
 	 */
-	router.post('/login', middlewares.requiredField.body(["username", "password"]),  function (req, res, next) {
-		if (!isString(req.body.username) || !isString(req.body.password)) {
+	router.post('/login', middlewares.requiredField.body(["email", "password"]),  function (req, res, next) {
+		if (!isString(req.body.email) || !isString(req.body.password)) {
 			res.status(401)
 			return res.json({ success: false, error: { code: codes.MISSING_CREDENTIALS, message: "Hiányzó adatok!" }, data: null });
 		}
 
-		//if (req.body.username instanceof String && req.body.password instanceof String) {
-		//	res.status(400)
-		//	return res.json({ success: false, error: { code: codes.MALFORMED_BODY, message: "Rossz típusú bemenet", malformedFields: ["username", "password"] }, data: null })
-		//}
+
 
 		passport.authenticate('local-login', function (err, user, info) {
 			if (err) { return next(err); }
@@ -117,7 +114,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 		const userdata = req.body.user;
 
 		var missingFields = [];
-		["email", "username", "firstname", "lastname"].forEach((f) => {
+		["email", "firstname", "lastname"].forEach((f) => {
 			if (!(f in userdata)) {
 				missingFields.push(f)
 			}
@@ -128,7 +125,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 		}
 
 		var invalidFields = [];
-		["email", "username", "firstname", "lastname"].forEach((f) => {
+		["email", "firstname", "lastname"].forEach((f) => {
 			if (!isString(userdata[f])) {
 				invalidFields.push(`req.body.user.${f}`)
 			}
@@ -174,7 +171,6 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 		const generatedPass = passwordGenerator.generate({ length: 8, numbers: true });
 
 		const newuser = sequelize.models.User.build({
-			username: userdata.username,
 			email: userdata.email,
 			password: generatedPass,
 			role: userdata.role,
@@ -201,7 +197,6 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 			},
 			subject: mailTexts.user.create.subject(),
 			text: mailTexts.user.create.body(
-				newuser.username,
 				generatedPass,
 				newuser.fullname
 			)
@@ -252,7 +247,6 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 			},
 			subject: mailTexts.user.forgottenpassword.subject(),
 			text: mailTexts.user.forgottenpassword.body(
-				user.username,
 				generatedPass,
 				user.fullname
 			)
@@ -318,7 +312,6 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 			}
 			searchQuery = [
 				// indexelt keresés:
-				sequelize.where(sequelize.fn("lower", sequelize.col("username")), searchIt),
 				sequelize.where(sequelize.fn("lower", sequelize.col("email")), searchIt),
 				// fullname keresés: (ha semmi sem működött eddig)
 				sequelize.where(sequelize.fn("lower", sequelize.fn("concat", sequelize.col("title"), " ", sequelize.col("lastname"), " ", sequelize.col("firstname"))), searchIt)
@@ -399,8 +392,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 		})
 	})
 
-	router.post('/addToOrganizationUnit', middlewares.isAuthenticated, middlewares.roleCheck(roles.parishOfficer), middlewares.requiredField.body(["emailOrUsername"]), async  (req, res, next) => {
-		console.log("Ide bejut");
+	router.post('/addToOrganizationUnit', middlewares.isAuthenticated, middlewares.roleCheck(roles.parishOfficer), middlewares.requiredField.body(["email"]), async  (req, res, next) => {
 		var isOrganizationUnitId = 0;
 		var organizationUnit = "";
 		var error = false;
@@ -429,12 +421,12 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 			res.status(400);
 			return res.json(errorGenerator.MALFORMED_BODY());
 		}
-		if (!isString(req.body.emailOrUsername)) {
-			return res.status(400).json(errorGenerator.FAILED_VALIDATION(["req.body.emailOrUsername"]));
+		if (!isString(req.body.email)) {
+			return res.status(400).json(errorGenerator.FAILED_VALIDATION(["req.body.email"]));
 		}
 		const user = await sequelize.models.User.findOne({
 			where: {
-				[Op.or]: [{ username: req.body.emailOrUsername }, { email: req.body.emailOrUsername }]
+				email: req.body.email
 			}
 		})
 		if (!user) {

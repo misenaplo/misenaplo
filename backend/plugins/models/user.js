@@ -8,9 +8,9 @@ module.exports = function(sequelize) {
 			defaultValue: Sequelize.UUIDV4,
 			primaryKey: true
 		},
-		username: {
+		username: { //deprecated
 			type: DataTypes.STRING(300),
-			allowNull: false,
+			allowNull: true,
 			unique: true
 		},
 		passwordChangeRecommended: {
