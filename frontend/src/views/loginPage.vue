@@ -37,7 +37,6 @@
 												label="Email" 
 												type="email"
 												prepend-inner-icon="fa-envelope"
-												:rules="emailRules"
 												required
 											></v-text-field>
 
@@ -128,7 +127,6 @@
 												label="Email"
 												type="email" 
 												prepend-inner-icon="fa-envelope"
-												:rules="emailRules"
 												required
 												v-on:keyup.enter="requireNewPassword"
 											></v-text-field>
@@ -260,7 +258,7 @@ export default {
 				.then((response) => {
 					if (response.data.success) { 
 						this.activeTab = 0; 
-						this.loginField.username = this.registrationField.username;
+						this.loginField.email = this.registrationField.email;
 					}
 					this.$store.commit('setSnack', response.data.success ? "Jelentkezz be az email címedre kapott új jelszóval." : ("A regisztráció során hiba történt: " + response.data.error));
 					this.registrationDisabled = false;
@@ -277,9 +275,9 @@ export default {
 
 			if(valid) {
 				this.forgottenPasswordDisabled = true;
-				this.axios({ url: 'user/forgottenpassword', method: 'POST', data: { email: this.forgottenPasswordField.username} })
+				this.axios({ url: 'user/forgottenpassword', method: 'POST', data: { email: this.forgottenPasswordField.email} })
 					.then((response) => {
-						if (response.data.success) { this.activeTab = 0; this.loginField.username = this.forgottenPasswordField.username; this.forgottenPasswordField.username = "" }
+						if (response.data.success) { this.activeTab = 0; this.loginField.email = this.forgottenPasswordField.email; this.forgottenPasswordField.email = "" }
 						this.$store.commit('setSnack', response.data.success ? "Jelentkezz be az email címedre kapott új jelszóval." : ("Az új jelszó igénylése során hiba történt: " + response.data.error))
 						this.forgottenPasswordDisabled = false;
 					})

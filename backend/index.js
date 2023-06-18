@@ -36,7 +36,7 @@ if (!(process.env.NO_LOG || false)) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-	origin: ['http://localhost:8081'],
+	origin: ['http://localhost:8080'],
 	methods: ['GET', 'POST', 'DELETE', 'PUT'],
 	credentials: true,
 	exposedHeaders: ["X-Maintenance-In"]
