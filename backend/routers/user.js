@@ -7,7 +7,7 @@ const { Op, REAL } = require("sequelize");
 const mailTexts = require("../plugins/mail-text");
 const { isUUID } = require("validator");
 const parishPermissions = require("../plugins/permissions/parish");
-
+const permissions = require("../plugins/permissions/user")
 
 module.exports = function (passport, sequelize, mailer, middlewares, roles, codes) {
 	const express = require('express')
@@ -44,10 +44,35 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 		return res.json({ success: true, error: null, data: null })
 	});
 
+	router.put("/:id", middlewares.isAuthenticated, middlewares.roleCheck(roles.parishOfficer), middlewares.requiredField.body(["changed"]), middlewares.includeToReq.user(sequelize, null, null)["req.params.id"], middlewares.hasPermission.user(permissions.changeDetails), async function(req,res,next) {
+		const protectedFields = ["id", "role", "password", "passwordChangeRecommended", "oneTimePassword"];
+
+		for (const [key, value] of Object.entries(req.body.changed)) {
+			if (key in req.user2 && !(protectedFields.includes(key))) {
+				try {
+					req.user2[key] = value;
+				} catch (err) {
+					res.status(400)
+					return res.json(errorGenerator.FAILED_VALIDATION([key]));
+				}
+			}
+		}
+
+
+		const [result, err] = await saveModel(req.user2);
+		if (result !== true && err == "ValidationError") {
+			res.status(400)
+			return res.json(errorGenerator.FAILED_VALIDATION(result));
+		}
+
+
+		return res.json({ success: true, error: null, data: null });
+
+	})
 
 
 	router.put("/", middlewares.isAuthenticated, middlewares.requiredField.body(["changed"]), async function (req, res, next) {
-		const protectedFields = ["id", "role"];
+		const protectedFields = ["id", "role", "passwordChangeRecommended", "oneTimePassword"];
 
 		if ("password" in req.body.changed && req.body.changed.password.length > 50) {
 			res.status(400)
@@ -455,9 +480,6 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 					if (result !== true && err == "ValidationError") {
 						res.status(400)
 						return res.json(errorGenerator.FAILED_VALIDATION(result));
-					} else if (result !== true && err == "UniqueConstraintError") {
-						res.status(400)
-						return res.json(errorGenerator.DUPLICATE_ENTRY(result));
 					}
 				}
 				break;

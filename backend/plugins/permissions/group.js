@@ -47,8 +47,8 @@ module.exports.check = async function (group, user, permission) {
                         }).then(async (_user) => {
                             if(!_user) {
                                 const groupParish = await group.getParish({attributes: ['id']});
-                                const userParish = await user.getParish({where: {id: groupParish.id}});
-                                resolve(userParish!==null);
+                                const userParish = await user.getParishes({where: {id: groupParish.id}});
+                                resolve(userParish!==[])
                             } else resolve(true);
                         })
                     break;

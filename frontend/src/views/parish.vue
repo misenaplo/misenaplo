@@ -50,7 +50,7 @@
                                 <td style="text-align: center">{{ parish.phone }}</td>
                                 <td>
                                     <v-btn color="blue"
-                                        @click="dialogs.editUser.show = true, dialogs.editParish.changedProperty = 'phone', dialogs.editParish.changedValue = parish.phone">
+                                        @click="dialogs.editParish.show = true, dialogs.editParish.changedProperty = 'phone', dialogs.editParish.changedValue = parish.phone">
                                         Módosítás<v-icon>fa-edit</v-icon>
                                     </v-btn>
                                 </td>
@@ -60,7 +60,7 @@
                                 <td style="text-align: center">{{ parish.location }}</td>
                                 <td>
                                     <v-btn color="blue"
-                                        @click="dialogs.editUser.show = true, dialogs.editParish.changedProperty = 'location', dialogs.editParish.changedValue = parish.location">
+                                        @click="dialogs.editParish.show = true, dialogs.editParish.changedProperty = 'location', dialogs.editParish.changedValue = parish.location">
                                         Módosítás<v-icon>fa-edit</v-icon>
                                     </v-btn>
                                 </td>
