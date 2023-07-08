@@ -11,12 +11,12 @@
           </v-icon>
           Felhasználó
         </v-tab>
-        <v-tab>
+        <!-- <v-tab>
           <v-icon left>
             fa-users
           </v-icon>
           Tagságok
-        </v-tab>
+        </v-tab> -->
 
 
         <v-tab-item>
