@@ -17,8 +17,8 @@
                                         label="Kezdő időpont" prepend-inner-icon="fa-calendar" readonly v-bind="attrs"
                                         v-on="on" rounded outlined />
                                 </template>
-                                <v-date-picker v-model="dialogs.attendanceForCandidate.params.begin"
-                                    :first-day-of-week="1" @input="dateMenus.begin = false" />
+                                <v-date-picker v-model="dialogs.attendanceForCandidate.params.begin" :first-day-of-week="1"
+                                    @input="dateMenus.begin = false" />
                             </v-menu>
                         </v-col>
                         <v-col cols="12" :sm="4">
@@ -26,22 +26,25 @@
                                 transition="scale-transition" offset-y min-width="auto">
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-text-field v-model="dialogs.attendanceForCandidate.params.end"
-                                        label="Befejező időpont" prepend-inner-icon="fa-calendar" readonly
-                                        v-bind="attrs" v-on="on" rounded outlined />
+                                        label="Befejező időpont" prepend-inner-icon="fa-calendar" readonly v-bind="attrs"
+                                        v-on="on" rounded outlined />
                                 </template>
-                                <v-date-picker v-model="dialogs.attendanceForCandidate.params.end"
-                                    :first-day-of-week="1" @input="dateMenus.end = false" />
+                                <v-date-picker v-model="dialogs.attendanceForCandidate.params.end" :first-day-of-week="1"
+                                    @input="dateMenus.end = false" />
                             </v-menu>
                         </v-col>
                         <v-col cols="12" :sm="2">
-                            <v-checkbox label="Részletes miserészvételi adatok" v-model="attendanceXLSX.details"/>
-                            <v-text-field v-model="attendanceXLSX.minAttendance" :rules="[fieldRules.isNumber]" label="Minimum jelenlét (db)" rounded outlined prepend-inner-icon="fa-church"/>
+                            <v-checkbox label="Részletes miserészvételi adatok" v-model="attendanceXLSX.details" />
+                            <v-text-field v-model="attendanceXLSX.minAttendance" :rules="[fieldRules.isNumber]"
+                                label="Minimum jelenlét (db)" rounded outlined prepend-inner-icon="fa-church" />
                         </v-col>
                         <v-col cols="12" :sm="1">
-                            <v-tooltip top v-if="fieldRules.isNumber(attendanceXLSX.minAttendance)===true">
+                            <v-tooltip top v-if="fieldRules.isNumber(attendanceXLSX.minAttendance) === true">
                                 Miserészvételi adatok letöltése xlsx formátumban
                                 <template v-slot:activator="{ on, attrs }">
-                                    <v-btn color="warning" fab v-on="on" v-ind="attrs" :href="`${axios.defaults.baseURL}group/${$route.params.id}/xlsx/attendance/${dialogs.attendanceForCandidate.params.begin}/${dialogs.attendanceForCandidate.params.end}/${attendanceXLSX.minAttendance}/${attendanceXLSX.details?1:0}`" target="_blank"><v-icon>fa-file-excel</v-icon></v-btn>
+                                    <v-btn color="warning" fab v-on="on" v-ind="attrs"
+                                        :href="`${axios.defaults.baseURL}group/${$route.params.id}/xlsx/attendance/${dialogs.attendanceForCandidate.params.begin}/${dialogs.attendanceForCandidate.params.end}/${attendanceXLSX.minAttendance}/${attendanceXLSX.details ? 1 : 0}`"
+                                        target="_blank"><v-icon>fa-file-excel</v-icon></v-btn>
                                 </template>
                             </v-tooltip>
                         </v-col>
@@ -58,21 +61,40 @@
                         </v-col>
                     </v-row>
                 </template>
-                <template v-for="slot in dateSlots" v-slot:[slot.slot]="{ item }">
-                    <span>
-                        <v-checkbox v-model="item[slot.value]" readonly @click="informations(item, slot)" />
-                    </span>
-                </template>
                 <template v-slot:item.actions="{ item }">
-                    <v-btn icon @click="dialogs.attendanceForCandidate.params.id = item.id">
-                        <v-icon>fa-calendar</v-icon>
-                    </v-btn>
+                    <v-tooltip top>
+                        Részvételek a szentmisén
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn icon @click="dialogs.attendanceForCandidate.params.id = item.id" v-on="on"
+                                v-bind="attrs">
+                                <v-icon>fa-calendar</v-icon>
+                            </v-btn>
+                        </template>
+                    </v-tooltip>
+                    <v-tooltip top>
+                        Törlés a csoportból
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn icon @click="dialogs.deleteFromGroup.id = item.id" color="red accent-4" v-on="on"
+                                v-bind="attrs">
+                                <v-icon>fa-trash</v-icon>
+                            </v-btn>
+                        </template>
+                    </v-tooltip>
+                    <v-tooltip top>
+                        Módosítás
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn icon @click="dialogs.change.id = item.id" color="blue" v-on="on"
+                                v-bind="attrs">
+                                <v-icon>fa-pen</v-icon>
+                            </v-btn>
+                        </template>
+                    </v-tooltip>
                 </template>
                 <template v-slot:item.url="{ item }">
-                    <a :href="scanURL(item.id)" target="_blank">{{scanURL(item.id)}}</a>
+                    <a :href="scanURL(item.id)" target="_blank">{{ scanURL(item.id) }}</a>
                 </template>
                 <template v-slot:item.QR="{ item }">
-                    <qr-code :text="scanURL(item.id)" ></qr-code>
+                    <qr-code :text="scanURL(item.id)"></qr-code>
                 </template>
             </v-data-table>
             <v-row justify="center">
@@ -119,6 +141,57 @@
                             <v-spacer></v-spacer>
                             <v-btn color="blue darken-1" text @click="dialogs.attendanceForCandidate.params.id = ''">
                                 Bezárás
+                            </v-btn>
+
+                        </v-card-actions>
+                    </v-card>
+
+                </v-dialog>
+            </v-row>
+            <v-row justify="center">
+                <v-dialog v-model="dialogs.deleteFromGroup.show" persistent max-width="1000px">
+                    <v-card>
+                        <v-card-title>
+                            <span class="headline">Gyerek törlése csoportból</span>
+                        </v-card-title>
+                        <v-card-text v-if="dialogs.deleteFromGroup.show">
+                            Biztosan törli {{ candidates.find(c => c.id == dialogs.deleteFromGroup.id).name }} nevű gyereket
+                            a csoportjából?
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="red accent-4" text @click="deleteFromGroup()">
+                                Törlés
+                            </v-btn>
+                            <v-btn color="blue darken-1" text @click="dialogs.deleteFromGroup.id = null">
+                                Mégsem
+                            </v-btn>
+
+                        </v-card-actions>
+                    </v-card>
+
+                </v-dialog>
+
+            </v-row>
+            <v-row justify="center">
+                <v-dialog v-model="dialogs.change.show" persistent max-width="1000px">
+                    <v-card>
+                        <v-card-title>
+                            <span class="headline">Gyerek módosítása</span>
+                        </v-card-title>
+                        <v-card-text v-if="dialogs.change.show">
+                            <v-container>
+                                <v-text-field prepend-inner-icon="fa-praying-hands" label="Név"
+                                    v-model="dialogs.change.changed.name" rounded outlined />
+                            </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="success" text @click="changeCandidate()" v-if="dialogs.change.changed.name.length>4">
+                                Módosítás
+                            </v-btn>
+                            <v-btn color="blue darken-1" text @click="dialogs.change.id = null">
+                                Mégsem
                             </v-btn>
 
                         </v-card-actions>
@@ -206,10 +279,21 @@ export default {
                     show: false,
                     params: {
                         id: '',
-                        begin: this.addMonths(new Date(), -1).toISOString().substring(0,10),
-                        end: (new Date()).toISOString().substring(0,10),
+                        begin: this.addMonths(new Date(), -1).toISOString().substring(0, 10),
+                        end: (new Date()).toISOString().substring(0, 10),
                         attributes: 'full'
                     },
+                },
+                deleteFromGroup: {
+                    show: false,
+                    id: null
+                },
+                change: {
+                    show: false,
+                    id: null,
+                    changed: {
+                        name: ''
+                    }
                 }
             },
             dateMenus: {
@@ -234,6 +318,18 @@ export default {
         },
         'dialogs.attendanceForCandidate.params.id': function (newVal, oldVal) {
             this.dialogs.attendanceForCandidate.show = newVal != '';
+        },
+        'dialogs.deleteFromGroup.id': function (newVal, oldVal) {
+            this.dialogs.deleteFromGroup.show = newVal != null;
+        },
+        'dialogs.change.id': function (newVal, oldVal) {
+            this.dialogs.change.show = newVal != null
+            if(this.dialogs.change.show) {
+                const C = this.candidates.find(c => c.id == newVal)
+                for (const [key, value] of Object.entries(C)) {
+                    this.dialogs.change.changed[key] = value
+                }
+            }
         }
     },
     methods: {
@@ -250,6 +346,7 @@ export default {
                         name: this.dialogs.newCandidate.candidate.name
                     });
                     this.dialogs.newCandidate.show = false;
+                    this.$store.commit('setSnack', 'A hozzáadás sikeresen megtörtént.')
                 }
             })
         },
@@ -269,6 +366,28 @@ export default {
                 }
             })
         },
+        deleteFromGroup: function () {
+            this.axios({ url: `candidate/${this.dialogs.deleteFromGroup.id}/group/${this.groupId}`, method: "DELETE" }).then((response) => {
+                if (response.data.success) {
+                    this.candidates.splice(this.candidates.findIndex(c => c.id == this.dialogs.deleteFromGroup.id), 1)
+                    this.dialogs.deleteFromGroup.id = null
+                    this.$store.commit('setSnack', 'A törlés sikeresen megtörtént.')
+                }
+            })
+        },
+
+        changeCandidate: function () {
+            this.axios({ url: `candidate/${this.dialogs.change.id}`, data: {changed: this.dialogs.change.changed}, method: "PUT" }).then((response) => {
+                if (response.data.success) {
+                    const C = this.candidates.find(c => c.id == this.dialogs.change.id)
+                    for (const [key, value] of Object.entries(this.dialogs.change.changed)) {
+                        C[key] = value
+                    }
+                    this.$store.commit('setSnack', 'A módosítás sikeresen megtörtént.')
+                    this.dialogs.change.id = null
+                }
+            })
+        }
 
     },
     mounted() {
