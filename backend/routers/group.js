@@ -248,6 +248,38 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         return res.json({ success: true, error: null, data: { group: req.group } });
     })
 
+    router.delete('/:id', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.includeToReq.group(sequelize,null,null)["req.params.id"], middlewares.hasPermission.group(permissions.deleteGroup), async function (req,res,next) {
+        await req.group.destroy()
+        return res.json({success: true, error: null, data: null})
+    })
+
+    router.put('/:id', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.requiredField.body(["changed"]), middlewares.includeToReq.group(sequelize, null, null)["req.params.id"], middlewares.hasPermission.group(permissions.changeDetails), async function (req, res, next) {
+        const protectedFields = ["id"];
+
+        for (const [key, value] of Object.entries(req.body.changed)) {
+            if (key in req.group && !(protectedFields.includes(key))) {
+                try {
+                    req.group[key] = value;
+                } catch (err) {
+                    res.status(400)
+                    return res.json(errorGenerator.FAILED_VALIDATION([key]));
+                }
+            }
+        }
+
+
+        const [result, err] = await saveModel(req.group);
+        if (result !== true && err == "ValidationError") {
+            res.status(400)
+            return res.json(errorGenerator.FAILED_VALIDATION(result));
+        }
+
+
+        return res.json({ success: true, error: null, data: null });
+
+    })
+
+
     router.get("/:id/generateCards",middlewares.isAuthenticated,middlewares.roleCheck(roles.catechist),middlewares.includeToReq.group(sequelize,null,null)["req.params.id"], middlewares.hasPermission.group(permissions.getDetails), async function(req,res,next) {
         const candidates = await req.group.getCandidates({attributes: ['id', 'name'], through: {attributes: []}})
         if(candidates.length==0) {

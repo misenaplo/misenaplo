@@ -23,7 +23,7 @@
 							<v-tooltip top>
 								Hozzáadás
 								<template v-slot:activator="{ on, attrs }">
-									<v-btn fab color="success" v-on="on" v-bind="attrs" @click="showDialog()">
+									<v-btn fab color="success" v-on="on" v-bind="attrs" @click="showAddGroupDialog()">
 										<v-icon>fa-plus</v-icon>
 									</v-btn>
 								</template>
@@ -31,11 +31,32 @@
 						</v-col>
 					</v-row>
 				</template>
-				<template v-slot:item.view="{ item }">
-					<v-btn icon :href="$router.resolve({ name: 'group', params: { id: item.id } }).href"
-						target="_blank">
-						<v-icon>fa-eye</v-icon>
-					</v-btn>
+				<template v-slot:item.actions="{ item }">
+					<v-tooltip top>
+						Megtekintés
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn icon :href="$router.resolve({ name: 'group', params: { id: item.id } }).href"
+								target="_blank" v-on="on" v-bind="attrs">
+								<v-icon>fa-eye</v-icon>
+							</v-btn>
+						</template>
+					</v-tooltip>
+					<v-tooltip top>
+						Szerkesztés
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn icon color="primary" v-on="on" v-bind="attrs" @click="dialogs.changeGroup.groupId=item.id">
+								<v-icon>fa-pen</v-icon>
+							</v-btn>
+						</template>
+					</v-tooltip>
+					<v-tooltip top>
+						Törlés
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn icon color="red accent-4" v-on="on" v-bind="attrs" @click="dialogs.deleteGroup.groupId=item.id">
+								<v-icon>fa-trash</v-icon>
+							</v-btn>
+						</template>
+					</v-tooltip>
 				</template>
 				<template v-slot:footer>
 					<v-row align="center" justify="end">
@@ -47,9 +68,9 @@
 						</v-col>
 						<v-col cols="12" sm="1" align="center" justify="center">
 							{{ (options.page - 1) * options.itemsPerPage + 1 }}-{{ options.itemsPerPage != 0 ?
-									(((options.page - 1) * options.itemsPerPage + options.itemsPerPage) > totalGroups ?
-										totalGroups : ((options.page - 1) * options.itemsPerPage + options.itemsPerPage)) :
-									totalGroups
+								(((options.page - 1) * options.itemsPerPage + options.itemsPerPage) > totalGroups ?
+									totalGroups : ((options.page - 1) * options.itemsPerPage + options.itemsPerPage)) :
+								totalGroups
 							}}/{{ totalGroups }}
 						</v-col>
 						<v-col cols="12" sm="2" align="center">
@@ -65,7 +86,7 @@
 				</template>
 			</v-data-table>
 			<v-row justify="center">
-				<v-dialog v-model="dialog.show" persistent max-width="600px">
+				<v-dialog v-model="dialogs.addGroup.show" persistent max-width="600px">
 
 					<v-card>
 						<v-card-title>
@@ -73,24 +94,70 @@
 						</v-card-title>
 						<v-card-text>
 							<v-container>
-								<v-text-field prepend-inner-icon="fa-users" label="Név" v-model="dialog.group.name"
-									rounded outlined />
+								<v-text-field prepend-inner-icon="fa-users" label="Név"
+									v-model="dialogs.addGroup.group.name" rounded outlined />
 								<v-select v-if="parishes.length > 1" item-text="name" item-value="id" :items="parishes"
-									v-model="dialog.group.parishId" label="Plébánia" rounded outlined
+									v-model="dialogs.addGroup.group.parishId" label="Plébánia" rounded outlined
 									prepend-inner-icon="fa-church" />
-									<v-select v-if="groupLeaders.length > 1" item-text="fullname" item-value="id" :items="groupLeaders"
-									v-model="dialog.group.leaderId" label="Csoportvezető" rounded outlined
-									prepend-inner-icon="fa-user" />
+								<v-select v-if="groupLeaders.length > 1" item-text="fullname" item-value="id"
+									:items="groupLeaders" v-model="dialogs.addGroup.group.leaderId" label="Csoportvezető"
+									rounded outlined prepend-inner-icon="fa-user" />
 							</v-container>
 						</v-card-text>
 						<v-card-actions>
 							<v-spacer></v-spacer>
-							<v-btn color="blue darken-1" text @click="dialog.show = false">
+							<v-btn color="blue darken-1" text @click="dialogs.addGroup.show = false">
 								Mégsem
 							</v-btn>
 							<v-btn color="blue darken-1" text @click="create()"
-								v-if="dialog.group.name && dialog.group.parishId && dialog.group.leaderId">
+								v-if="dialogs.addGroup.group.name && dialogs.addGroup.group.parishId && dialogs.addGroup.group.leaderId">
 								Hozzáadás
+							</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+			</v-row>
+			<v-row justify="center">
+				<v-dialog v-model="dialogs.changeGroup.show" persistent max-width="600px">
+					<v-card>
+						<v-card-title>
+							<span class="headline">Csoport módosítása</span>
+						</v-card-title>
+						<v-card-text>
+							<v-container>
+								<v-text-field prepend-inner-icon="fa-users" label="Név"
+									v-model="dialogs.changeGroup.changed.name" rounded outlined />
+							</v-container>
+						</v-card-text>
+						<v-card-actions>
+							<v-spacer></v-spacer>
+							<v-btn color="red accent-4" text @click="dialogs.changeGroup.groupId = null">
+								Mégsem
+							</v-btn>
+							<v-btn color="blue darken-1"  text @click="change()"
+								v-if="dialogs.changeGroup.changed.name.length>2">
+								Módosítás
+							</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+			</v-row>
+			<v-row justify="center">
+				<v-dialog v-model="dialogs.deleteGroup.show" persistent max-width="600px">
+					<v-card>
+						<v-card-title>
+							<span class="headline">Csoport törlése</span>
+						</v-card-title>
+						<v-card-text v-if="dialogs.deleteGroup.show">
+							Biztosan törli a(z) {{ groups.find(g => g.id == dialogs.deleteGroup.groupId).name }} csoportot?
+						</v-card-text>
+						<v-card-actions>
+							<v-spacer></v-spacer>
+							<v-btn color="red accent-4" text @click="deleteGroup()">
+								Törlés
+							</v-btn>
+							<v-btn color="blue darken-1"  text @click="dialogs.deleteGroup.groupId = null">
+								Mégsem
 							</v-btn>
 						</v-card-actions>
 					</v-card>
@@ -143,21 +210,34 @@ export default {
 							value: "candidateCount"
 						},*/
 						{
-							text: "Megtekintés",
+							text: "Műveletek",
 							align: "center",
 							sortable: false,
 							filterable: false,
-							value: "view"
+							value: "actions"
 						}
 					]
 				}
 			},
-			dialog: {
-				show: false,
-				group: {
-					name: '',
-					leaderId: '',
-					parishId: ''
+			dialogs: {
+				addGroup: {
+					show: false,
+					group: {
+						name: '',
+						leaderId: '',
+						parishId: ''
+					}
+				},
+				deleteGroup: {
+					show: false,
+					groupId: null
+				},
+				changeGroup: {
+					show: false,
+					groupId: null,
+					changed: {
+						name: ''
+					}
 				}
 			},
 			roles
@@ -169,17 +249,29 @@ export default {
 		}
 	},
 	watch: {
-		'dialog.group.parishId': function (newVal, oldVal) {
-			newVal != '' && newVal != undefined && newVal != null ? this.getLeaders() : this.groupLeaders = [], this.dialog.group.leaderId = '';
+		'dialogs.addGroup.group.parishId': function (newVal, oldVal) {
+			newVal != '' && newVal != undefined && newVal != null ? this.getLeaders() : this.groupLeaders = [], this.dialogs.addGroup.group.leaderId = '';
+		},
+		'dialogs.deleteGroup.groupId': function (newVal, oldVal) {
+			this.dialogs.deleteGroup.show = newVal != null
+		},
+		'dialogs.changeGroup.groupId': function (newVal, oldVal) {
+			this.dialogs.changeGroup.show = newVal != null
+			if (newVal) {
+				const G = this.groups.find(g => g.id == this.dialogs.changeGroup.groupId)
+				for (const [key, value] of Object.entries(G)) {
+					this.dialogs.changeGroup.changed[key] = value
+				}
+			}
 		}
 	},
 	methods: {
 		create: function () {
-			this.axios({ url: "group", method: "POST", data: { ...this.dialog.group } }).then((response) => {
+			this.axios({ url: "group", method: "POST", data: { ...this.dialogs.addGroup.group } }).then((response) => {
 				if (response.data.success) {
-					this.groups.push({ ...this.dialog.group, id: response.data.data.id, MIRClub: response.data.data.MIRClub, kidAthleteCount: 0 });
-					this.dialog.show = false;
-					this.dialog.group = { name: '', description: '' }
+					this.groups.push({ ...this.dialogs.addGroup.group, id: response.data.data.id, MIRClub: response.data.data.MIRClub, kidAthleteCount: 0 });
+					this.dialogs.addGroup.show = false;
+					this.dialogs.addGroup.group = { name: '', description: '' }
 					this.$store.commit('setSnack', 'A hozzáadás sikeresen megtörtént.')
 				}
 			})
@@ -193,32 +285,54 @@ export default {
 			this.getGroups()
 		},
 		getGroups: function () {
-			this.axios({ url: "group", method: "GET", params:{ ...this.options, ...(this.parishId ? { parishId: this.parishId } : {})} }).then((response) => {
+			this.axios({ url: "group", method: "GET", params: { ...this.options, ...(this.parishId ? { parishId: this.parishId } : {}) } }).then((response) => {
 				if (response.data.success) {
 					this.groups = response.data.data.groups
 					this.totalGroups = response.data.data.totalGroups
 				}
 			})
 		},
-		showDialog: function () {
+		showAddGroupDialog: function () {
 			if (this.parishes.length == 0) {
 				if (this.parishId) this.parishes.push({ id: this.parishId, name: 'Megtekintett plébánia' })
 				else {
 					this.axios({ url: "parish", method: "GET", params: { search: '', itemsPerPage: 0, page: 0 } }).then((response) => {
 						if (response.data.success) {
 							this.parishes = response.data.data.parishes
-							if (this.parishes.length == 1) this.dialog.group.parishId = this.parishes[0].id
+							if (this.parishes.length == 1) this.dialogs.addGroup.group.parishId = this.parishes[0].id
 						}
 					})
 				}
 			}
-			this.dialog.show = true;
+			this.dialogs.addGroup.show = true;
 		},
 		getLeaders: function () {
-			this.axios({ url: "user/list", method: "GET", params: { search: '', itemsPerPage: 0, page: 0, parishId: this.dialog.group.parishId, minRole: roles.catechist } }).then((response) => {
+			this.axios({ url: "user/list", method: "GET", params: { search: '', itemsPerPage: 0, page: 0, parishId: this.dialogs.addGroup.group.parishId, minRole: roles.catechist } }).then((response) => {
 				if (response.data.success) {
 					this.groupLeaders = response.data.data.users
-					if (this.groupLeaders.length == 1) this.dialog.group.leaderId = this.groupLeaders[0].id
+					if (this.groupLeaders.length == 1) this.dialogs.addGroup.group.leaderId = this.groupLeaders[0].id
+				}
+			})
+		},
+		change: function () {
+			this.axios({ url: `group/${this.dialogs.changeGroup.groupId}`, method: "PUT", data: { changed: this.dialogs.changeGroup.changed } }).then((response) => {
+				if (response.data.success) {
+					const G = this.groups.find(g => g.id == this.dialogs.changeGroup.groupId)
+					this.dialogs.changeGroup.groupId = null
+					for (const [key, value] of Object.entries(this.dialogs.changeGroup.changed)) {
+						G[key] = value
+					}
+					this.$store.commit('setSnack', 'A módosítás sikeresen megtörtént.')
+
+				}
+			})
+		},
+		deleteGroup: function() {
+			this.axios({url: `group/${this.dialogs.deleteGroup.groupId}`, method: "DELETE"}).then((response) => {
+				if(response.data.success) {
+					this.groups.splice(this.groups.findIndex(g => g.id==this.dialogs.deleteGroup.id),1)
+					this.$store.commit('setSnack', 'A törlés sikeresen megtörtént.')
+					this.dialogs.deleteGroup.show=false
 				}
 			})
 		}

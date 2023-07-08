@@ -3,9 +3,9 @@ const errorGenerator = require("../plugins/error-generator");
 const dbError = require("../plugins/dbError");
 const { isString, isNumber } = require("../plugins/type-check");
 const { Op } = require("sequelize");
-const permissions = require("../plugins/permissions/parish");
-const parishPermissions = require("../plugins/permissions/parish");
 const groupPermissions = require("../plugins/permissions/group")
+const candidatePermissions = require("../plugins/permissions/candidate")
+
 const { isUUID } = require("validator")
 
 module.exports = function (passport, sequelize, mailer, middlewares, roles, codes) {
@@ -148,7 +148,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
                         required: true,
                         attributes: ['id'],
                         where: {
-                            ...(req.query.groupId? {id: req.query.groupId}:{})
+                            ...(req.query.groupId ? { id: req.query.groupId } : {})
                         },
                         through: { attributes: [] },
                         include: [
@@ -188,7 +188,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         return res.json({ success: true, error: null, data: { candidates: rows, totalCandidates: count } })
     })
 
-    router.post('/', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.requiredField.body(["name", "groupId"]), middlewares.includeToReq.group(sequelize,null,null)["req.body.groupId"],middlewares.hasPermission.group(groupPermissions.addCandidate), async function (req, res, next) {
+    router.post('/', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.requiredField.body(["name", "groupId"]), middlewares.includeToReq.group(sequelize, null, null)["req.body.groupId"], middlewares.hasPermission.group(groupPermissions.addCandidate), async function (req, res, next) {
         var invalidFields = [];
         ["name"].forEach((f) => {
             if (!isString(req.body[f])) {
@@ -225,5 +225,39 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 
     })
 
+    router.delete('/:candidateId/group/:id', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.includeToReq.group(sequelize, null, null)["req.params.id"], middlewares.hasPermission.group(groupPermissions.deleteCandidate), async function (req, res, next) {
+        if (!isUUID(req.params.candidateId, 4)) {
+            return res.status(400).json(errorGenerator.FAILED_VALIDATION(["req.params.candidateId"]));
+        }
+
+        await req.group.removeCandidate(req.params.candidateId)
+        res.json({ success: true, error: null, data: null })
+    })
+
+    router.put('/:id', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.requiredField.body(["changed"]), middlewares.includeToReq.candidate(sequelize, null, null)["req.params.id"], middlewares.hasPermission.candidate(candidatePermissions.changeDetails), async function (req, res, next) {
+        const protectedFields = ["id"];
+
+        for (const [key, value] of Object.entries(req.body.changed)) {
+            if (key in req.candidate && !(protectedFields.includes(key))) {
+                try {
+                    req.candidate[key] = value;
+                } catch (err) {
+                    res.status(400)
+                    return res.json(errorGenerator.FAILED_VALIDATION([key]));
+                }
+            }
+        }
+
+
+        const [result, err] = await saveModel(req.candidate);
+        if (result !== true && err == "ValidationError") {
+            res.status(400)
+            return res.json(errorGenerator.FAILED_VALIDATION(result));
+        }
+
+
+        return res.json({ success: true, error: null, data: null });
+
+    })
     return router
 }
