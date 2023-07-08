@@ -103,6 +103,32 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         return res.json({ success: true, error: null, data: { parish: req.parish } });
     })
 
+    router.put("/:id", middlewares.isAuthenticated, middlewares.roleCheck(roles.deanOfficer), middlewares.requiredField.body(["changed"]), middlewares.includeToReq.parish(sequelize, null, null)["req.params.id"], middlewares.hasPermission.parish(permissions.changeDetails), async function(req,res,next) {
+		const protectedFields = ["id"];
+
+		for (const [key, value] of Object.entries(req.body.changed)) {
+			if (key in req.parish && !(protectedFields.includes(key))) {
+				try {
+					req.parish[key] = value;
+				} catch (err) {
+					res.status(400)
+					return res.json(errorGenerator.FAILED_VALIDATION([key]));
+				}
+			}
+		}
+
+
+		const [result, err] = await saveModel(req.parish);
+		if (result !== true && err == "ValidationError") {
+			res.status(400)
+			return res.json(errorGenerator.FAILED_VALIDATION(result));
+		}
+
+
+		return res.json({ success: true, error: null, data: null });
+
+	})
+
     router.get("/:id/users", middlewares.isAuthenticated, middlewares.roleCheck(roles.parishOfficer), middlewares.includeToReq.parish(sequelize.models.Parish, null, null)["req.params.id"], middlewares.hasPermission.parish(permissions.getUsers), async function (req, res, next) {
         const users = await req.parish.getUsers();
         return res.json({ success: true, error: null, data: { users: users } });

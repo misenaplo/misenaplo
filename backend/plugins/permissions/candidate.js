@@ -8,7 +8,6 @@ module.exports.changeDetails = groupPermissionCheck.changeDetails;
 
 module.exports.check = async function (candidate, user, permission) {
     return new Promise(async (resolve, reject) => {
-        return resolve(true);
         switch (permission) {
             case this.getDetails:
             case this.changeDetails:
