@@ -12,6 +12,8 @@ module.exports.deleteLeader = 5;
 
 module.exports.check = async function (group, user, permission) {
     return new Promise(async (resolve, reject) => {
+        console.log("GROUP")
+        console.log(permission)
         switch (permission) {
             case this.deleteLeader:
             case this.changeDetails:
@@ -51,13 +53,13 @@ module.exports.check = async function (group, user, permission) {
                                 resolve(userParish!==[])
                             } else resolve(true);
                         })
-                    break;
+                        break;
                     
 
                     case roles.deanOfficer:
                     case roles.dean:
                         return resolve(false); //Még ki kell egészíteni
-                    break;
+                        break;
 
                     case roles.bishopOfficer:
                     case roles.bishop:
@@ -73,6 +75,7 @@ module.exports.check = async function (group, user, permission) {
                     case roles.pope:
                     case roles.admin:
                         console.log("roles.admin")
+
                         return resolve(true);
                 }
             break;
