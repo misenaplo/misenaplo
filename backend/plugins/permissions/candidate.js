@@ -7,10 +7,11 @@ module.exports.changeDetails = groupPermissionCheck.changeDetails;
 
 
 module.exports.check = async function (candidate, user, permission) {
+    console.log(permission)
     return new Promise(async (resolve, reject) => {
         switch (permission) {
-            case this.getDetails:
-            case this.changeDetails:
+            case module.exports.getDetails:
+            case module.exports.changeDetails:
                 const groups = await candidate.getGroups();
                 var ok = false;
                 await Promise.all(groups.map(async (group) => {

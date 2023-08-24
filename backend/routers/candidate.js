@@ -234,7 +234,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         res.json({ success: true, error: null, data: null })
     })
 
-    router.put('/:id', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.requiredField.body(["changed"]), middlewares.includeToReq.candidate(sequelize, null, null)["req.params.id"], middlewares.hasPermission.candidate(candidatePermissions.changeDetails), async function (req, res, next) {
+    router.put('/:id', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.requiredField.body(["changed"]), middlewares.includeToReq.candidate(sequelize, null, null)["req.params.id"], middlewares.hasPermission.candidate(null, candidatePermissions.changeDetails), async function (req, res, next) {
         const protectedFields = ["id"];
 
         for (const [key, value] of Object.entries(req.body.changed)) {
