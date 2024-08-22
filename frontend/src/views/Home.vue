@@ -4,9 +4,15 @@
 		<v-container class="fill-height px-4 py-12">
 			<v-responsive class="d-flex align-center" height="100%" width="100%">
 				<v-row align="center" justify="center">
-					<v-col cols="12" sm="6" class="white--text">
-
-
+					<v-col cols="12" sm="3">
+						<v-card elevation="12">
+							<v-card-text>
+								<h1>Betlehemi Szent Mirjam</h1>
+								<v-img :src="require('@/assets/Mirjam.jpg')" />
+							</v-card-text>
+						</v-card>
+					</v-col>
+					<v-col cols="12" sm="3" class="white--text">
 						<h1>MisEnapló</h1>
 						<p align="left"><b>A MisEnapló szoftver a papír alapú miseigazolványok kiváltására szolgál.</b>
 						</p>
