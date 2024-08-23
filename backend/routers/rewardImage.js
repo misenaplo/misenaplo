@@ -49,7 +49,8 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
           public: false
         })
         const R = await sequelize.models.RewardImage.create({
-          MediumId: M.id
+          MediumId: M.id,
+          width: 4
         })
         return res.json({success: true, error: null, data: null})
       })
