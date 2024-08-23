@@ -35,7 +35,7 @@ module.exports = function(passport, sequelize, mailer, middlewares, roles, codes
 	router.use('/candidate', require("./candidate")(passport, sequelize, mailer, middlewares, roles, codes));
 	router.use('/attendance', require("./attendance")(passport, sequelize, mailer, middlewares, roles, codes));
 	router.use('/scan', require("./scan")(passport, sequelize, mailer, middlewares, roles, codes));
-
+	router.use('/rewardImage', require("./rewardImage")(passport, sequelize, mailer, middlewares, roles, codes));
 
 	router.get('/checkdbconnection', (req, res) => {
 		if (req.session.views) {

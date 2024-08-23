@@ -6,7 +6,8 @@ module.exports = function (sequelize) {
         Group,
         Parish,
         Candidate,
-        Attendance
+        Attendance,
+        RewardImage
     } = sequelize.models;
 
     Group.belongsTo(Parish);
@@ -31,8 +32,14 @@ module.exports = function (sequelize) {
     Attendance.belongsTo(User, {as: "Signer"});
     User.hasMany(Attendance, {foreignKey: "SignerId"});
 
+    Attendance.belongsTo(RewardImage, {key: "MediaId"}),
+    RewardImage.hasMany(Attendance)
+
     Attendance.belongsTo(Candidate);
     Candidate.hasMany(Attendance);
+
+    RewardImage.belongsTo(Media)
+    Media.hasMany(RewardImage)
     
 
 }

@@ -11,6 +11,7 @@ module.exports = function (sequelize) {
 	require('./models/candidate')(sequelize)
 	require('./models/attendance')(sequelize)
 	
+	require('./models/rewardImage')(sequelize)
 
 	require('./models/associations')(sequelize) // Kapcsolatok létrehozása és betöltése
 

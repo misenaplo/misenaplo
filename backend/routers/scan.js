@@ -1,7 +1,7 @@
 const saveModel = require("../plugins/save-model-handler");
 const errorGenerator = require("../plugins/error-generator");
 const dbError = require("../plugins/dbError");
-const { Op } = require("sequelize");
+const { Op, random } = require("sequelize");
 const candidatePermissions = require('../plugins/permissions/candidate');
 const { isUUID, isDate } = require("validator")
 
@@ -31,10 +31,18 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
             if(attendance.length!=0) {
                 return res.send(`<!DOCTYPE html><html><head><title>QR-beolvasás</title><meta charset="UTF-8" /></head><body><h1>${req.candidate.name} HIBA! 20 percen belüli dupla rögzítés</h1></body></html>`)    
             }
-            await req.candidate.createAttendance({
-                SignerId: req.user.id
+
+            let reward = await sequelize.models.RewardImage.findAll({
+                order: random(),
+                limit: 1
             })
-    
+
+            reward = reward.length === 0 ? null : reward[0].MediaId
+            await req.candidate.createAttendance({
+                SignerId: req.user.id,
+                RewardImageId: reward
+            })
+            //todo: algoritmus kiszedése
             return res.send(`<!DOCTYPE html><html><head><title>QR-beolvasás</title><meta charset="UTF-8" /><meta http-equiv="refresh" content="2; URL=https://misenaplo.hu/attendance/${req.query.candidateId}" /></head><body><h1>${req.candidate.name} OK, rögzítve</h1></body></html>`)    
         }
         else {

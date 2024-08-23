@@ -7,6 +7,10 @@ module.exports = function(sequelize) {
 			defaultValue: Sequelize.UUIDV4,
 			primaryKey: true
 		},
+		solutionTime: {
+			type: DataTypes.DOUBLE,
+			allowNull: true
+		}
     	}, 
         {
             timestamps: true,
