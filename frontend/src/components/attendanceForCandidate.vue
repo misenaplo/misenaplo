@@ -139,7 +139,7 @@ export default {
                     align: "center",
                     sortable: false,
                     filterable: false,
-                    value: reward
+                    value: "reward"
                 }
             ],
             dateMenus: {
