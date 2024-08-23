@@ -49,7 +49,7 @@
                         <v-tooltip top>
                         Jutalomjáték elkezdése
                         <template v-slot:activator="{ on, attrs }">
-                            <v-btn icon @click="rewardPuzzle.attendanceId = item.id, rewardPuzzle.rewardImageId = item.RewardImageId, rewardPuzzle.show = true" v-on="on"
+                            <v-btn icon @click="rewardPuzzle.attendanceId = item.id, rewardPuzzle.rewardImageId = item.RewardImageMediumId, rewardPuzzle.show = true" v-on="on"
                                 v-bind="attrs">
                                 <v-icon>fa-puzzle-piece</v-icon>
                             </v-btn>
