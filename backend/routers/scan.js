@@ -33,7 +33,6 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
             }
 
             let reward = await sequelize.models.RewardImage.findAll({
-                order: 'random()',
                 limit: 1
             })
 
