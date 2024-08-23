@@ -67,10 +67,6 @@ const routes = [
   },
 
 
-
-
-
-
   {
     path: '/users',
     name: 'users',
@@ -144,10 +140,16 @@ const routes = [
       name: "Csoportba rögzítés",
       icon: 'fa-qrcode'
     }
-  }
-
-
-
+  },
+  {
+    path: '/uploadReward',
+    name: 'uploadReward',
+    component: () => import('../views/uploadReward.vue'),
+    meta: {
+      minUserRole: roles.catechist,
+      showInMenu: false
+    }
+  },
 
 
 ]
