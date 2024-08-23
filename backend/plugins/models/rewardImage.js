@@ -2,7 +2,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 
 module.exports = function (sequelize) {
     sequelize.define("RewardImage", {
-        MediaId: {
+        MediumId: {
             type: DataTypes.UUID,
             allowNull: false,
             primaryKey: true

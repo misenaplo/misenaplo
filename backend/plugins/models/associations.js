@@ -32,7 +32,7 @@ module.exports = function (sequelize) {
     Attendance.belongsTo(User, {as: "Signer"});
     User.hasMany(Attendance, {foreignKey: "SignerId"});
 
-    Attendance.belongsTo(RewardImage, {key: "MediaId"}),
+    Attendance.belongsTo(RewardImage, {key: "MediumId"}),
     RewardImage.hasMany(Attendance)
 
     Attendance.belongsTo(Candidate);
