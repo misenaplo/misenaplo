@@ -21,12 +21,11 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         }
         const reward = await sequelize.models.RewardImage.findOne({
             where: {
-                id: req.query.id
+                MediumId: req.query.id
             },
             include: [
                 {
                     model: sequelize.models.Media,
-                    as: 'Media',
                     required: true,
                     attributes: ['id', 'metadata', 'buffer']
                 }
@@ -35,9 +34,9 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         if(reward===null) {
             return res.status(404).json(errorGenerator.INSTANCE_NOT_FOUND("Nem található jutalomkép"));
         }
-        res.setHeaders("Content-Type", reward.Media.metadata.mimeType)
-        res.setHeaders("Content-Disposition", contentDisposition(reward.Media.metadata.originalName))
-        res.send(Buffer.from(reward.Media.buffer, 'base64'))
+        res.setHeaders("Content-Type", reward.Medium.metadata.mimeType)
+        res.setHeaders("Content-Disposition", contentDisposition(reward.Medium.metadata.originalName))
+        res.send(Buffer.from(reward.Medium.buffer, 'base64'))
     })
 
     router.post('/',middlewares.roleCheck(roles.catechist), upload.single('file'), async (req,res)=> {
@@ -50,7 +49,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
           public: false
         })
         const R = await sequelize.models.RewardImage.create({
-          MediaId: M.id
+          MediumId: M.id
         })
         return res.json({success: true, error: null, data: null})
       })

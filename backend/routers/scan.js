@@ -37,7 +37,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
                 limit: 1
             })
 
-            reward = reward.length === 0 ? null : reward[0].MediaId
+            reward = reward.length === 0 ? null : reward[0].MediumId
             await req.candidate.createAttendance({
                 SignerId: req.user.id,
                 RewardImageId: reward
