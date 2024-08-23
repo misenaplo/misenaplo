@@ -15,7 +15,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 
     router.get('/:id', middlewares.requiredField.query(['id']), async function (req, res, next) {
         const invalidFields = [] ;
-        if(!isUUID(req.query.id)) invalidFields.push("req.query.id")
+        if(!isUUID(req.query.id, 4)) invalidFields.push("req.query.id")
         if(invalidFields.length>0) {
             return res.status(400).json(errorGenerator.FAILED_VALIDATION(invalidFields));
         }
