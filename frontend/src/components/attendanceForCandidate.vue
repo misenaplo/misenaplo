@@ -58,7 +58,7 @@
                     </span>
                 </template>
             </v-data-table>
-            <v-dialog v-model="rewardPuzzle.show" persistent max-width="600px">
+            <v-dialog v-model="rewardPuzzle.show" fullscreen>
 
                 <v-card>
                     <v-card-text>
