@@ -43,7 +43,7 @@
                 </template>
                 <template v-slot:item.reward="{ item }" v-if="!($store.getters.userRole >= roles.signer)">
                     <span v-if="item.solutionTime">
-                        <v-img max-height="200" :src="rewardImage(item.RewardImageMediumId)" />
+                        <v-img max-height="70" :src="rewardImage(item.RewardImageMediumId)" />
                     </span>
                     <span v-else-if="new Date(item.createdAt) > yesterday && item.RewardImageMediumId !== null">
                         <v-tooltip top>
@@ -58,18 +58,7 @@
                     </span>
                 </template>
             </v-data-table>
-                <v-card v-if="rewardPuzzle.show">
-                    <v-card-text>
-                        <span class="headline">Jutalom</span>
-                    </v-card-text>
-                    <v-card-text>
-                        <v-container>
-                            <reward-puzzle v-if="rewardPuzzle.show" :attendanceId="rewardPuzzle.attendanceId" :rewardImageId="rewardPuzzle.rewardImageId" @finish="rewardPuzzle.show = false, rewardPuzzle.attendanceId = false"/>
-                        </v-container>
-                    </v-card-text>
-                    <v-card-actions>
-                    </v-card-actions>
-                </v-card>
+            <reward-puzzle v-if="rewardPuzzle.show" :attendanceId="rewardPuzzle.attendanceId" :rewardImageId="rewardPuzzle.rewardImageId" @finish="rewardPuzzle.show = false, rewardPuzzle.attendanceId = false"/>
         </template>
     </div>
 </template>
