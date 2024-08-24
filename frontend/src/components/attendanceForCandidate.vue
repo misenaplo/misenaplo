@@ -43,9 +43,9 @@
                 </template>
                 <template v-slot:item.reward="{ item }" v-if="!($store.getters.userRole >= roles.signer)">
                     <span v-if="item.solutionTime">
-                        <v-img :src="rewardImage(item.RewardImageId)" />
+                        <v-img :src="rewardImage(item.RewardImageMediumId)" />
                     </span>
-                    <span v-else-if="new Date(item.createdAt) > yesterday && item.RewardImageId !== null">
+                    <span v-else-if="new Date(item.createdAt) > yesterday && item.RewardImageMediumId !== null">
                         <v-tooltip top>
                         Jutalomjáték elkezdése
                         <template v-slot:activator="{ on, attrs }">

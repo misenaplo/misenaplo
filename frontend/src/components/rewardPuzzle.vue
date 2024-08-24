@@ -8,7 +8,6 @@
 import PuzzleBoard from 'vue-8-puzzle';
 
 export default {
-
     props: ['attendanceId', 'rewardImageId'],
     components: {
         PuzzleBoard
