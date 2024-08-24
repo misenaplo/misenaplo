@@ -1,5 +1,7 @@
 <template>
+    <div width="100%" height="300px">
         <puzzle-board :src="src" cols="4" rows="4" autoResize="false" @start="start()" @finish="finish()"/>
+    </div>
 </template>
 
 <script>
