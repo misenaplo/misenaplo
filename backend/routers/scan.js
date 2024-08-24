@@ -32,14 +32,17 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
                 return res.send(`<!DOCTYPE html><html><head><title>QR-beolvasás</title><meta charset="UTF-8" /></head><body><h1>${req.candidate.name} HIBA! 20 percen belüli dupla rögzítés</h1></body></html>`)    
             }
 
+            const rewardCount = await sequelize.models.rewardImage.count()
             let reward = await sequelize.models.RewardImage.findAll({
-                limit: 1
+                limit: 1,
+                offset: Math.floor(Math.random() * rewardCount)
             })
 
             reward = reward.length === 0 ? null : reward[0].MediumId
             await req.candidate.createAttendance({
                 SignerId: req.user.id,
-                RewardImageMediumId: reward
+                RewardImageMediumId: reward,
+                solutionTime: 1
             })
             //todo: algoritmus kiszedése
             return res.send(`<!DOCTYPE html><html><head><title>QR-beolvasás</title><meta charset="UTF-8" /><meta http-equiv="refresh" content="2; URL=https://misenaplo.hu/attendance/${req.query.candidateId}" /></head><body><h1>${req.candidate.name} OK, rögzítve</h1></body></html>`)    
