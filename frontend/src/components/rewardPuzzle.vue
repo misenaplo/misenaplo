@@ -1,7 +1,5 @@
 <template>
-    <div>
-        <puzzle-board :src="src" cols="4" rows="4" autoResize="true" @start="start()" @finish="finish()"/>
-    </div>
+        <puzzle-board :src="src" cols="4" rows="4" autoResize="false" @start="start()" @finish="finish()"/>
 </template>
 
 <script>
