@@ -32,7 +32,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
                 return res.send(`<!DOCTYPE html><html><head><title>QR-beolvasás</title><meta charset="UTF-8" /></head><body><h1>${req.candidate.name} HIBA! 20 percen belüli dupla rögzítés</h1></body></html>`)    
             }
 
-            const rewardCount = await sequelize.models.rewardImage.count()
+            const rewardCount = await sequelize.models.RewardImage.count()
             let reward = await sequelize.models.RewardImage.findAll({
                 limit: 1,
                 offset: Math.floor(Math.random() * rewardCount)
