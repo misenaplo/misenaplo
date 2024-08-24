@@ -19,7 +19,7 @@ export default {
     },
     computed: {
         src() {
-            return `/api/rewardImage/${this.rewardImageId}`
+            return `/api/rewardImage/${this.rewardImageId}/.png`
         }
     },
     watch: {

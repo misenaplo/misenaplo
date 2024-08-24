@@ -200,7 +200,7 @@ export default {
             })
         },
         rewardImage: function (id) {
-            return `/api/rewardImage/${id}`
+            return `/api/rewardImage/${id}/.png`
         }
 
     },
