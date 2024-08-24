@@ -150,6 +150,15 @@ const routes = [
       showInMenu: false
     }
   },
+  {
+    path: '/puzzleTest',
+    name: 'puzzleTest',
+    component: () => import('../views/puzzleTest.vue'),
+    meta: {
+      minUserRole: roles.catechist,
+      showInMenu: false
+    }
+  },
 
 
 ]
