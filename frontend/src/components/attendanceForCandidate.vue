@@ -43,7 +43,7 @@
                 </template>
                 <template v-slot:item.reward="{ item }" v-if="!($store.getters.userRole >= roles.signer)">
                     <span v-if="item.solutionTime">
-                        <v-img max-height="70" :src="rewardImage(item.RewardImageMediumId)" />
+                        <v-img height="200" contain :src="rewardImage(item.RewardImageMediumId)" />
                     </span>
                     <span v-else-if="new Date(item.createdAt) > yesterday && item.RewardImageMediumId !== null">
                         <v-tooltip top>
