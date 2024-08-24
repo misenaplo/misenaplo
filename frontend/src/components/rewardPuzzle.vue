@@ -1,6 +1,6 @@
 <template>
     <div>
-        <puzzle-board :src="src" cols="4" rows="4" autoResize @start="start()" @finish="finish()"/>
+        <puzzle-board :src="src" cols="4" rows="4" autoResize="true" @start="start()" @finish="finish()"/>
     </div>
 </template>
 
