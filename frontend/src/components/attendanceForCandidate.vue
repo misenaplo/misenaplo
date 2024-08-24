@@ -43,7 +43,7 @@
                 </template>
                 <template v-slot:item.reward="{ item }" v-if="!($store.getters.userRole >= roles.signer)">
                     <span v-if="item.solutionTime">
-                        <v-img :src="rewardImage(item.RewardImageMediumId)" />
+                        <v-img max-height="200" :src="rewardImage(item.RewardImageMediumId)" />
                     </span>
                     <span v-else-if="new Date(item.createdAt) > yesterday && item.RewardImageMediumId !== null">
                         <v-tooltip top>
@@ -58,25 +58,18 @@
                     </span>
                 </template>
             </v-data-table>
-            <v-dialog v-model="rewardPuzzle.show" fullscreen>
-
-                <v-card>
+                <v-card v-if="rewardPuzzle.show">
                     <v-card-text>
                         <span class="headline">Jutalom</span>
                     </v-card-text>
                     <v-card-text>
                         <v-container>
-                            <reward-puzzle :attendanceId="rewardPuzzle.attendanceId" :rewardImageId="rewardPuzzle.rewardImageId" @finish="rewardPuzzle.show = false, rewardPuzzle.attendanceId = false"/>
+                            <reward-puzzle v-if="rewardPuzzle.show" :attendanceId="rewardPuzzle.attendanceId" :rewardImageId="rewardPuzzle.rewardImageId" @finish="rewardPuzzle.show = false, rewardPuzzle.attendanceId = false"/>
                         </v-container>
                     </v-card-text>
                     <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue darken-1" text @click="rewardPuzzle.show = false, rewardPuzzle.attendanceId = null">
-                            Ok
-                        </v-btn>
                     </v-card-actions>
                 </v-card>
-            </v-dialog>
         </template>
     </div>
 </template>
