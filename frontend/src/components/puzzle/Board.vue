@@ -210,7 +210,7 @@ export default {
 .frame {
   display: flex;
   flex-wrap: wrap;
-  background: #612211 url('../assets/board.jpg');
+  background: #612211 url('../../assets/board.jpg');
   background-size: cover;
 }
 
