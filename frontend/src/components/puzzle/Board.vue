@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import sample from 'lodash.sample'
 import Tile from './Tile'
 
 let backupTiles = null
@@ -83,9 +84,9 @@ export default {
 
   methods: {
     onResize() {
-      this.window.height = window.innerHeight
-      this.window.width = window.innerWidth
-    }
+      //this.window.height = window.innerHeight
+      //this.window.width = window.innerWidth
+    },
     start ({ image, size }) {
       this.size = size
       this.image = image
