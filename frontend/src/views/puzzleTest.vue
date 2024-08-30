@@ -1,13 +1,13 @@
 <template>
-        <puzzle-board :src="src" cols="4" rows="4" autoResize="true" @start="start()" @finish="finish()"/>
+    <Board ref="board"></Board>
 </template>
 
 <script>
-import PuzzleBoard from 'vue-8-puzzle';
 
+import Board from '../components/puzzle/Board'
 export default {
     components: {
-        PuzzleBoard
+        Board
     },
     data: function () {
         return {
@@ -51,7 +51,13 @@ export default {
         }
     },
     mounted() {
-
+        this.$refs.board.start({
+            image: this.src,
+            size: {
+                horizontal: 4,
+                vertical: 4
+            }
+        })
     }
 }
 </script>
