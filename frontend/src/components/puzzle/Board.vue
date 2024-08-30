@@ -38,6 +38,10 @@ export default {
       tileSize: {
         width: 0,
         height: 0
+      },
+      window: {
+        width: window.innerWidth,
+        height: window.innerHeight
       }
     }
   },
@@ -78,14 +82,28 @@ export default {
   },
 
   methods: {
+    onResize() {
+      this.window.height = window.innerHeight
+      this.window.width = window.innerWidth
+    }
     start ({ image, size }) {
       this.size = size
       this.image = image
       // detect the width and height of the frame
       const img = new Image()
       img.onload = () => {
-        this.tileSize.width = Math.floor(img.width / size.horizontal)
-        this.tileSize.height = Math.floor(img.height / size.vertical)
+        let imW = img.width
+        let imH = img.height
+        if(imW>this.window.width-5) {
+          imW = this.window.width-5
+          imH = img.height * (imW / img.width)
+        }
+        if(imH>this.window.height-5) {
+          imH = this.window.height-5
+          imW = img.width * (imH / img.height)
+        }
+        this.tileSize.width = Math.floor(imW / size.horizontal)
+        this.tileSize.height = Math.floor(imH / size.vertical)
         this.generateTiles()
         this.shuffleTiles()
       }
@@ -171,7 +189,15 @@ export default {
         pos + this.size.horizontal
       ]
     }
-  }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      window.addEventListener('resize', this.onResize);
+    })
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
+  },
 }
 </script>
 
