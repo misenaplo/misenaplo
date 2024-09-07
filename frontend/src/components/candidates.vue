@@ -9,7 +9,7 @@
                                 label="Szkennelő link mutatása (ideiglenes)"></v-switch>
                             <v-switch v-model="tables.candidates.options.showQR" label="QR mutatása"></v-switch>
                         </v-col>-->
-                        <v-col cols="12" :sm="4">
+                        <v-col cols="12" :sm="3">
                             <v-menu v-model="dateMenus.begin" :close-on-content-click="false" :nudge-right="40"
                                 transition="scale-transition" offset-y min-width="auto">
                                 <template v-slot:activator="{ on, attrs }">
@@ -21,7 +21,7 @@
                                     @input="dateMenus.begin = false" />
                             </v-menu>
                         </v-col>
-                        <v-col cols="12" :sm="4">
+                        <v-col cols="12" :sm="3">
                             <v-menu v-model="dateMenus.end" :close-on-content-click="false" :nudge-right="40"
                                 transition="scale-transition" offset-y min-width="auto">
                                 <template v-slot:activator="{ on, attrs }">
@@ -33,7 +33,7 @@
                                     @input="dateMenus.end = false" />
                             </v-menu>
                         </v-col>
-                        <v-col cols="12" :sm="2">
+                        <v-col cols="12" :sm="3">
                             <v-checkbox label="Részletes miserészvételi adatok" v-model="attendanceXLSX.details" />
                             <v-text-field v-model="attendanceXLSX.minAttendance" :rules="[fieldRules.isNumber]"
                                 label="Minimum jelenlét (db)" rounded outlined prepend-inner-icon="fa-church" />
@@ -55,6 +55,17 @@
                                     <v-btn fab color="success" v-on="on" v-bind="attrs"
                                         @click="dialogs.newCandidate.show = true">
                                         <v-icon>fa-plus</v-icon>
+                                    </v-btn>
+                                </template>
+                            </v-tooltip>
+                        </v-col>
+                        <v-col cols="12" :sm="1">
+                            <v-tooltip top>
+                                Több hozzáadása
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn fab color="success" v-on="on" v-bind="attrs"
+                                        @click="dialogs.newCandidates.show = true">
+                                        <v-icon>fa-user-plus</v-icon>
                                     </v-btn>
                                 </template>
                             </v-tooltip>
@@ -96,6 +107,30 @@
                 <template v-slot:item.QR="{ item }">
                     <qr-code :text="scanURL(item.id)"></qr-code>
                 </template>
+                <template v-slot:footer>
+				<v-row align="center" justify="end">
+					<v-col cols="12" sm="3" align="center">
+						<v-select align="center" label="Gyerekek egy oldalon" :items="[10, 15, 25, 50]"
+							v-model="options.itemsPerPage" prepend-inner-icon="fa-users" rounded outlined
+							@change="options.page = options.page > Math.ceil(totalCandidates / options.itemsPerPage) ? Math.ceil(totalCandidates / options.itemsPerPage) : options.page, getCandidates()" />
+					</v-col>
+					<v-col cols="12" sm="1" align="center" justify="center">
+						{{ (options.page - 1) * options.itemsPerPage + 1 }}-{{ ((options.page - 1) *
+								options.itemsPerPage + options.itemsPerPage) > totalCandidates ? totalCandidates : ((options.page - 1) *
+									options.itemsPerPage + options.itemsPerPage)
+						}}/{{ totalCandidates }}
+					</v-col>
+					<v-col cols="12" sm="2" align="center">
+						<v-btn icon :disabled="options.page < 2" @click="changePage(false)">
+							<v-icon>fa-arrow-left</v-icon>
+						</v-btn>{{ options.page }}. oldal<v-btn icon
+							:disabled="options.page == Math.ceil(totalCandidates / options.itemsPerPage)"
+							@click="changePage(true)">
+							<v-icon>fa-arrow-right</v-icon>
+						</v-btn>
+					</v-col>
+				</v-row>
+			</template>
             </v-data-table>
             <v-row justify="center">
                 <v-dialog v-model="dialogs.newCandidate.show" persistent max-width="600px">
@@ -122,7 +157,32 @@
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
+            </v-row>
+            <v-row justify="center">
+                <v-dialog v-model="dialogs.newCandidates.show" persistent max-width="600px">
 
+                    <v-card>
+                        <v-card-title>
+                            <span class="headline">Új gyerekek</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-container>
+                                <v-text-area prepend-inner-icon="fa-praying-hands" label="Soronként 1 név"
+                                    v-model="dialogs.newCandidates.candidates" rounded outlined />
+                            </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="blue darken-1" text @click="dialogs.newCandidates.show = false">
+                                Mégsem
+                            </v-btn>
+                            <v-btn color="blue darken-1" text @click="newCandidates()"
+                                v-if="dialogs.newCandidates.candidates">
+                                Hozzáadás
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
             </v-row>
             <v-row justify="center">
                 <v-dialog v-model="dialogs.attendanceForCandidate.show" persistent max-width="1000px">
@@ -238,13 +298,6 @@ export default {
                             value: "name"
                         },
                         /*{
-                            text: 'Létszám',
-                            align: "center",
-                            sortable: false,
-                            filterable: false,
-                            value: "candidateCount"
-                        },*/
-                        /*{
                             text: 'Qr',
                             align: "center",
                             sortable: false,
@@ -274,6 +327,10 @@ export default {
                     candidate: {
                         name: ''
                     }
+                },
+                newCandidates: {
+                    show: false,
+                    candidates: ''
                 },
                 attendanceForCandidate: {
                     show: false,
@@ -307,9 +364,7 @@ export default {
         }
     },
     computed: {
-        candidateTableHeaders() {
 
-        },
 
     },
     watch: {
@@ -335,10 +390,8 @@ export default {
     methods: {
         scanURL(id) {
             return ((new URL(`${this.axios.defaults.baseURL}scan/candidate?candidateId=${id}`, window.location.origin)).href)
-
         },
         newCandidate() {
-            console.log({ url: "candidate", method: "POST", data: { ...this.dialogs.newCandidate.candidate, ...(this.groupId ? { groupId: this.groupId } : {}) } })
             this.axios({ url: "candidate", method: "POST", data: { ...this.dialogs.newCandidate.candidate, ...(this.groupId ? { groupId: this.groupId } : {}) } }).then((response) => {
                 if (response.data.success) {
                     this.candidates.push({
@@ -349,6 +402,12 @@ export default {
                     this.$store.commit('setSnack', 'A hozzáadás sikeresen megtörtént.')
                 }
             })
+        },
+        newCandidates() {
+            Promise.all(this.dialogs.newCandidates.candidates.split('\n').map(c => this.axios({ url: "candidate", method: "POST", data: { name: c, ...(this.groupId ? { groupId: this.groupId } : {}) } }))).then((responses) => {
+                this.getCandidates()
+            })  
+
         },
         search: function () {
             this.options.page = 1;
