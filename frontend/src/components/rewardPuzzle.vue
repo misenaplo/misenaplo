@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import loadImage from 'blueimp-load-image'
 
 import Board from '../components/puzzle/Board'
 export default {
@@ -12,7 +13,11 @@ export default {
     },
     data: function () {
         return {
-            startTime: null
+            startTime: null,
+            window: {
+                width: window.innerWidth,
+                height: window.innerHeight
+            }
         }
     },
     computed: {
@@ -45,19 +50,27 @@ export default {
                     }
                 }).then(() => {
                     this.$store.commit('setSnack', response.data.success? "Jutalom megszerezve." : "Már nem lehet megszerezni.")
-                    $router.push({name: 'home'})
+                    window.close()
                 })
             }
         }
     },
     mounted() {
+        loadImage(this.src, canvas => {
         this.$refs.board.start({
-            image: this.src,
+            image: canvas.toDataURL(),
             size: {
                 horizontal: 4,
                 vertical: 4
             }
         })
+      }, {
+        maxWidth: this.window.width-70,
+        maxHeight: this.window.height-120,
+        minWidth: 200,
+        minHeight: 200,
+        canvas: true
+      })
     }
 }
 </script>
