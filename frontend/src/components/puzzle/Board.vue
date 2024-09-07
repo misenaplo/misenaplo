@@ -95,12 +95,12 @@ export default {
       img.onload = () => {
         let imW = img.width
         let imH = img.height
-        if(imW>this.window.width-5) {
-          imW = this.window.width-5
+        if(imW>this.window.width-70) {
+          imW = this.window.width-70
           imH = img.height * (imW / img.width)
         }
-        if(imH>this.window.height-5) {
-          imH = this.window.height-5
+        if(imH>this.window.height-120) {
+          imH = this.window.height-120
           imW = img.width * (imH / img.height)
         }
         this.tileSize.width = Math.floor(imW / size.horizontal)
@@ -165,6 +165,10 @@ export default {
 
       // If found the empty tile, just switch the flex order and we're good.
       target && this.switchTiles(target, tile)
+      this.$emit('moving')
+      if (this.valid) {
+        this.$emit('finish')
+      }
     },
 
     /**

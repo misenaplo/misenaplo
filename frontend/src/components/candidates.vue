@@ -371,6 +371,11 @@ export default {
         'dialogs.newCandidate.show': function () {
             this.dialogs.newCandidate.candidate.name = '';
         },
+        'dialogs.newCandidates.show': function () {
+            if (this.dialogs.newCandidates.show) {
+                this.dialogs.newCandidates.candidates = ''
+            }
+        },
         'dialogs.attendanceForCandidate.params.id': function (newVal, oldVal) {
             this.dialogs.attendanceForCandidate.show = newVal != '';
         },

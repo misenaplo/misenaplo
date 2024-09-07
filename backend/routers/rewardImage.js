@@ -13,7 +13,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
     const express = require('express')
     const router = express.Router()
 
-    router.get('/:id/.png', async function (req, res, next) {
+    router.get('/:id', async function (req, res, next) {
         const invalidFields = [] ;
         if(!isUUID(req.params.id, 4)) invalidFields.push("req.params.id")
         if(invalidFields.length>0) {

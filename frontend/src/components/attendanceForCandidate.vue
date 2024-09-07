@@ -49,7 +49,7 @@
                         <v-tooltip top>
                         Jutalomjáték elkezdése
                         <template v-slot:activator="{ on, attrs }">
-                            <v-btn icon @click="rewardPuzzle.attendanceId = item.id, rewardPuzzle.rewardImageId = item.RewardImageMediumId, rewardPuzzle.show = true" v-on="on"
+                            <v-btn icon :href="$router.resolve({ name: 'rewardPuzzle', params: { attendanceId: item.id, rewardId: item.RewardImageMediumId } }).href" target="_blank" v-on="on"
                                 v-bind="attrs">
                                 <v-icon>fa-puzzle-piece</v-icon>
                             </v-btn>
@@ -182,7 +182,7 @@ export default {
             })
         },
         rewardImage: function (id) {
-            return `/api/rewardImage/${id}/.png`
+            return `/api/rewardImage/${id}`
         }
 
     },

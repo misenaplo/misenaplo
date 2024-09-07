@@ -1,16 +1,14 @@
 <template>
-    <div width="100%" height="300px">
-        <puzzle-board :src="src" cols="4" rows="4" autoResize="true" @start="start()" @finish="finish()"/>
-    </div>
+    <Board ref="board" v-on:moving="start()" v-on:finish="finish()"></Board>
 </template>
 
 <script>
-import PuzzleBoard from 'vue-8-puzzle';
 
+import Board from '../components/puzzle/Board'
 export default {
     props: ['attendanceId', 'rewardImageId'],
     components: {
-        PuzzleBoard
+        Board
     },
     data: function () {
         return {
@@ -19,7 +17,7 @@ export default {
     },
     computed: {
         src() {
-            return `/api/rewardImage/${this.rewardImageId}/.png`
+            return `/api/rewardImage/${this.rewardImageId}`
         }
     },
     watch: {
@@ -47,13 +45,19 @@ export default {
                     }
                 }).then(() => {
                     this.$store.commit('setSnack', response.data.success? "Jutalom megszerezve." : "Már nem lehet megszerezni.")
-                    this.$emit('finish')
+                    $router.push({name: 'home'})
                 })
             }
         }
     },
     mounted() {
-
+        this.$refs.board.start({
+            image: this.src,
+            size: {
+                horizontal: 4,
+                vertical: 4
+            }
+        })
     }
 }
 </script>

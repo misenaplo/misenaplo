@@ -151,13 +151,14 @@ const routes = [
     }
   },
   {
-    path: '/puzzleTest',
-    name: 'puzzleTest',
-    component: () => import('../views/puzzleTest.vue'),
+    path: '/rewardPuzzle/:attendanceId/:rewardImageId',
+    name: 'rewardPuzzle',
+    component: () => import('../views/rewardPuzzle.vue'),
     meta: {
-      minUserRole: roles.catechist,
-      showInMenu: false
-    }
+      showInMenu: false,
+      minUserRole: roles.unauthenticated
+    },
+    props: true
   },
 
 
