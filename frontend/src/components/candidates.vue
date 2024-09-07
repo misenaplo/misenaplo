@@ -1,7 +1,7 @@
 <template>
     <div>
         <template>
-            <v-data-table :headers="tables.candidates.headers" :items="candidates">
+            <v-data-table :headers="tables.candidates.headers" hide-default-footer disable-pagination :items="candidates">
                 <template v-slot:top>
                     <v-row>
                         <!--<v-col cols="12" :sm="3">
@@ -167,7 +167,7 @@
                         </v-card-title>
                         <v-card-text>
                             <v-container>
-                                <v-text-area prepend-inner-icon="fa-praying-hands" label="Soronként 1 név"
+                                <v-textarea prepend-inner-icon="fa-praying-hands" label="Soronként 1 név"
                                     v-model="dialogs.newCandidates.candidates" rounded outlined />
                             </v-container>
                         </v-card-text>
