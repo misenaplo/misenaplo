@@ -404,6 +404,7 @@ export default {
             })
         },
         newCandidates() {
+            this.dialogs.newCandidates.show = false;
             Promise.all(this.dialogs.newCandidates.candidates.split('\n').map(c => this.axios({ url: "candidate", method: "POST", data: { name: c, ...(this.groupId ? { groupId: this.groupId } : {}) } }))).then((responses) => {
                 this.getCandidates()
             })  
