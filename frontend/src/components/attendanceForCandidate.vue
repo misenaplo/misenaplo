@@ -49,7 +49,7 @@
                         <v-tooltip top>
                         Jutalomjáték elkezdése
                         <template v-slot:activator="{ on, attrs }">
-                            <v-btn icon :href="$router.resolve({ name: 'rewardPuzzle', params: { attendanceId: item.id, rewardId: item.RewardImageMediumId } }).href" target="_blank" v-on="on"
+                            <v-btn icon :href="$router.resolve({ name: 'rewardPuzzle', params: { attendanceId: item.id, rewardImageId: item.RewardImageMediumId } }).href" target="_blank" v-on="on"
                                 v-bind="attrs">
                                 <v-icon>fa-puzzle-piece</v-icon>
                             </v-btn>
@@ -58,7 +58,6 @@
                     </span>
                 </template>
             </v-data-table>
-            <reward-puzzle v-if="rewardPuzzle.show" :attendanceId="rewardPuzzle.attendanceId" :rewardImageId="rewardPuzzle.rewardImageId" @finish="rewardPuzzle.show = false, rewardPuzzle.attendanceId = false"/>
         </template>
     </div>
 </template>
