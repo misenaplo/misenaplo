@@ -42,7 +42,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
             await req.candidate.createAttendance({
                 SignerId: req.user.id,
                 RewardImageMediumId: reward,
-                solutionTime: 1
+                solutionTime: null
             })
             //todo: algoritmus kiszedése
             return res.send(`<!DOCTYPE html><html><head><title>QR-beolvasás</title><meta charset="UTF-8" /><meta http-equiv="refresh" content="2; URL=https://misenaplo.hu/attendance/${req.query.candidateId}" /></head><body><h1>${req.candidate.name} OK, rögzítve</h1></body></html>`)    
