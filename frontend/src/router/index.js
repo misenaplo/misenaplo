@@ -153,7 +153,7 @@ const routes = [
   {
     path: '/rewardPuzzle/:attendanceId/:rewardImageId',
     name: 'rewardPuzzle',
-    component: () => import('../views/rewardPuzzle.vue'),
+    component: () => import('../components/rewardPuzzle.vue'),
     meta: {
       showInMenu: false,
       minUserRole: roles.unauthenticated
