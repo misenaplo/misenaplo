@@ -42,7 +42,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
             if(!isUUID(req.params[p], 4)) invalidFields.push(`req.params.${p}`)
         });
         ["time"].forEach(p => {
-            if(!isNumeric(req.body[p])) invalidFields.push(`req.body.${p}`)
+            if(isNan(req.body[p])) invalidFields.push(`req.body.${p}`)
         });
         if(invalidFields.length>0) {
             return res.status(400).json(errorGenerator.FAILED_VALIDATION(invalidFields));
