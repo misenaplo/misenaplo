@@ -3,7 +3,6 @@
     <div class="frame-wrapper" :style="frameSize">
       <div class="original"
           v-if="showingOriginal && image"
-          @click="showingOriginal = false"
           :style="{ background: `url(${image})`}">
       </div>
       <div class="frame" :style="frameSize" v-if="!showingOriginal">
