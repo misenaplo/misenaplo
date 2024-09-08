@@ -6,7 +6,7 @@
           @click="showingOriginal = false"
           :style="{ background: `url(${image})`}">
       </div>
-      <div class="frame" :style="frameSize">
+      <div class="frame" :style="frameSize" v-if="!showingOriginal">
         <Tile v-for="tile in tiles"
           :key="tile.position"
           :tile="tile"
@@ -158,6 +158,12 @@ export default {
         return
       }
 
+      if (this.valid) {
+        this.showingOriginal=true
+        this.$emit('finish')
+        return
+      }
+
       // Find the 4 direct (non-diagonal) adjacent tiles and see if any of them is the empty tile
       const target = this.tiles.find(t => {
         return t.isEmpty && this.getAdjacentOrders(tile).indexOf(t.styles.order) > -1
@@ -167,6 +173,7 @@ export default {
       target && this.switchTiles(target, tile)
       this.$emit('moving')
       if (this.valid) {
+        this.showingOriginal=true
         this.$emit('finish')
       }
     },

@@ -52,12 +52,13 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
                 createdAt: {
                     [Op.between]: [new Date().setDate(new Date().getDate()-1), new Date()]
                 },
-                id: req.params.attendanceId
+                id: req.params.attendanceId,
+                solutionTime: null
             },
         });
 
         if (!attendance) {
-            return res.status(404).json(errorGenerator.INSTANCE_NOT_FOUND("Jelenlét nem található 24 órán belül"));
+            return res.status(404).json(errorGenerator.INSTANCE_NOT_FOUND("Jelenlét nem található 24 órán belül megoldatlan puzzleval"));
         }
 
         attendance.solutionTime = req.body.time;
