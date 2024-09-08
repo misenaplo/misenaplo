@@ -3,7 +3,7 @@ const errorGenerator = require("../plugins/error-generator");
 const dbError = require("../plugins/dbError");
 const { Op } = require("sequelize");
 const candidatePermissions = require('../plugins/permissions/candidate');
-const { isUUID, isDate } = require("validator")
+const { isUUID, isDate, isNumeric } = require("validator")
 
 module.exports = function (passport, sequelize, mailer, middlewares, roles, codes) {
     const express = require('express')
@@ -42,7 +42,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
             if(!isUUID(req.params[p], 4)) invalidFields.push(`req.params.${p}`)
         });
         ["time"].forEach(p => {
-            if(!isDate(req.body[p])) invalidFields.push(`req.body.${p}`)
+            if(!isNumeric(req.body[p])) invalidFields.push(`req.body.${p}`)
         });
         if(invalidFields.length>0) {
             return res.status(400).json(errorGenerator.FAILED_VALIDATION(invalidFields));
