@@ -60,8 +60,8 @@ export default {
         this.$refs.board.start({
             image: canvas.toDataURL(),
             size: {
-                horizontal: 4,
-                vertical: 4
+                horizontal: 3,
+                vertical: 3
             }
         })
       }, {
