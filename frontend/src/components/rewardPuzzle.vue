@@ -44,7 +44,7 @@ export default {
                 const time = endTime - this.startTime;
                 this.axios({
                     method: 'post',
-                    url: `/api/attendance/${this.attendanceId}/reward`,
+                    url: `attendance/${this.attendanceId}/reward`,
                     data: {
                         time: time
                     }
