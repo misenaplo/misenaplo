@@ -50,17 +50,22 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         const attendance = await sequelize.models.Attendance.findOne({
             where: {
                 createdAt: {
-                    [Op.between]: [new Date(req.body.time).setDate(new Date(req.body.time).getDate()+-1), new Date(req.body.time)]
+                    [Op.between]: [new Date().setDate(new Date().getDate()-1), new Date()]
                 },
                 id: req.params.attendanceId
             },
         });
 
         if (!attendance) {
-            return res.status(404).json(errorGenerator.NOT_FOUND("Jelenlét nem található 24 órán belül"));
+            return res.status(404).json(errorGenerator.INSTANCE_NOT_FOUND("Jelenlét nem található 24 órán belül"));
         }
 
         attendance.solutionTime = req.body.time;
+        const [result, err] = await saveModel(attendance);
+		if (result !== true && err == "ValidationError") {
+			res.status(400)
+			return res.json(errorGenerator.FAILED_VALIDATION(result));
+		}
         res.json({success: true, error: null, data: null })
     })
 
