@@ -6,6 +6,8 @@ module.exports = {
 
 Sikeresen regisztrálták a MisEnaplóba!
 
+Kérem, amennyiben a kezdőlapon önmaga regisztrált, és plébánosi vagy egyéb jogkört kér, akkor keressen emailben a voroslaszlo@misenaplo.hu címen, ugyanis azt csak ellenőrzés után tudjuk biztosítani, hogy hiteles maradjon a rendszer.
+
 Jelszava: ${password}
 
 Bejelentkezni az alábbi linkre kattintva tud:
