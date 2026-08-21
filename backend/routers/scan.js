@@ -71,6 +71,27 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
 
         res.send({success: true, error: null, data: null})
     })
+    router.post('/candidate/:id/served', middlewares.roleCheck(roles.signer), middlewares.includeToReq.candidate(sequelize,null,null,null)["req.params.id"], async function (req, res, next) {
+        const minutes = 20 * (60 * 1000)
+        var attendance = await req.candidate.getAttendances({
+            where: {
+                SignerId: req.user.id,
+                createdAt: {
+                   [Op.gte]: new Date(Date.now()-minutes)
+                }
+            }
+        })
+        if(attendance.length==0) {
+            return res.send({success: false, error: null, data: null})
+        }
+        for(const a of attendance) {
+            a.served = true;
+            await a.save();
+        }
+
+        res.send({success: true, error: null, data: null})
+    })
+
     router.get('/task', middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), async function (req,res,next) {
         return res.json({success: true, error: null, data: {selectedGroup: req.session.selectedGroup?.id}})
     })

@@ -10,6 +10,11 @@ module.exports = function(sequelize) {
 		solutionTime: {
 			type: DataTypes.DOUBLE,
 			allowNull: true
+		},
+		served: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
 		}
     	}, 
         {

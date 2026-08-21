@@ -30,7 +30,7 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
                     attributes: ['fullname', 'lastname', 'firstname', 'title', ...(req.user?['id']:[])]
                 }
             ],
-            attributes: ['id', 'createdAt', 'RewardImageMediumId', 'solutionTime'],
+            attributes: ['id', 'createdAt', 'RewardImageMediumId', 'solutionTime', 'served'],
             order: ["createdAt"]
         });
         res.json({success: true, error: null, data: {attendances, ...(req.query.withName?{candidateName: req.candidate.name}:{})}})

@@ -10,6 +10,8 @@
                         <v-col v-if="$store.getters.userRole >= roles.signer" cols="12" :sm="3">
                             <v-btn color="red accent-4" rounded @click="undo()"><v-icon>fa-undo</v-icon>Visszavonás (20
                                 percen belül)</v-btn>
+                            <v-btn color="green" rounded class="mt-2 mt-sm-0 ml-sm-2"
+                                @click="markServed()"><v-icon>fa-church</v-icon>Ministrált</v-btn>
                         </v-col>
                         <v-col cols="12" :sm="$store.getters.userRole >= roles.signer ? 3 : 4">
                             <v-menu v-model="dateMenus.begin" :close-on-content-click="false" :nudge-right="40"
@@ -40,6 +42,7 @@
                 </template>
                 <template v-slot:item.createdAt="{ item }">
                     {{ (new Date(item.createdAt)).toLocaleString('hu-HU') }}
+                    <v-chip v-if="item.served" small color="green" text-color="white" class="ml-1">Ministrált</v-chip>
                 </template>
                 <template v-slot:item.reward="{ item }" v-if="!($store.getters.userRole >= roles.signer)">
                     <span v-if="item.solutionTime">
@@ -170,6 +173,12 @@ export default {
             this.axios({ url: `scan/candidate/${this.candidateId}`, method: "DELETE" }).then(response => {
                 this.getAttendance(true)
                 this.$store.commit('setSnack', response.data.success ? "Visszavonva." : "Már nem lehet visszavonni.")
+            })
+        },
+        markServed: function () {
+            this.axios({ url: `scan/candidate/${this.candidateId}/served`, method: "POST" }).then(response => {
+                this.getAttendance(true)
+                this.$store.commit('setSnack', response.data.success ? "Ministrálás rögzítve." : "Nincs 20 percen belüli rögzítés.")
             })
         },
         getAttendance: function (name) {

@@ -45,7 +45,7 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
     attributes: ["name", "id"],
     include: [{
       model: sequelize.models.Attendance,
-      attributes: ["createdAt"],
+      attributes: ["createdAt", "served"],
       where: {
         createdAt: {
           [Op.between]: [startDate, endDate+" 23:59:59"]
@@ -87,11 +87,13 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
     for(var i = 0; i<candidates.length;i++) {
       for(var j = 0; j<candidates[i].Attendances.length;j++) {
         var index = attendanceRegistry.findIndex(aR => aR.date == date(candidates[i].Attendances[j].createdAt));
-        if(index==-1) 
+        if(index==-1)
           attendanceRegistry.push({
             date: date(candidates[i].Attendances[j].createdAt),
           })
-        attendanceRegistry[index==-1 ? attendanceRegistry.length-1 : index][candidates[i].id]= attendanceRegistry[index==-1 ? attendanceRegistry.length-1 : index][candidates[i].id] ? `${attendanceRegistry[index==-1 ? attendanceRegistry.length-1 : index][candidates[i].id]}, ${time(candidates[i].Attendances[j].createdAt)}` : time(candidates[i].Attendances[j].createdAt) 
+        const registryIndex = index==-1 ? attendanceRegistry.length-1 : index
+        const markedTime = candidates[i].Attendances[j].served ? `${time(candidates[i].Attendances[j].createdAt)} (M)` : time(candidates[i].Attendances[j].createdAt)
+        attendanceRegistry[registryIndex][candidates[i].id]= attendanceRegistry[registryIndex][candidates[i].id] ? `${attendanceRegistry[registryIndex][candidates[i].id]}, ${markedTime}` : markedTime
       }
     }
 
@@ -156,7 +158,9 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
 
   }
 
-
+  if(details) {
+    sheet.getCell(`${columnToLetter(1)}${3+candidates.length+1}`).value = "(M) = ministrált";
+  }
 
   AdjustColumnWidth(sheet);
   //1. fejlécsor
