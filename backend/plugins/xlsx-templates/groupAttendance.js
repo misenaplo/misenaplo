@@ -82,6 +82,15 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
     bottom: {style:'thin'},
     right: {style:'thick'}
   };
+
+  sheet.getCell(`${columnToLetter(3)}2`).value="Összes ministrálás"
+  sheet.getCell(`${columnToLetter(3)}2`).alignment={horizontal: 'center'};
+  sheet.getCell(`${columnToLetter(3)}2`).border = {
+    top: {style:'thick'},
+    left: {style:'thick'},
+    bottom: {style:'thin'},
+    right: {style:'thick'}
+  };
   
   if(details) {
     for(var i = 0; i<candidates.length;i++) {
@@ -108,9 +117,9 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
       return 0;
     })
     for(var i = 0; i<attendanceRegistry.length;i++) {
-      sheet.getCell(`${columnToLetter(3+i)}2`).value= `${attendanceRegistry[i].date}`;
-      sheet.getCell(`${columnToLetter(3+i)}2`).alignment = {horizontal: 'center'};
-      sheet.getCell(`${columnToLetter(3+i)}2`).border = {
+      sheet.getCell(`${columnToLetter(4+i)}2`).value= `${attendanceRegistry[i].date}`;
+      sheet.getCell(`${columnToLetter(4+i)}2`).alignment = {horizontal: 'center'};
+      sheet.getCell(`${columnToLetter(4+i)}2`).border = {
         top: {style:'thick'},
         left: {style:'thick'},
         bottom: {style:'thin'},
@@ -122,7 +131,7 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
 
   for(var i = 0;i<candidates.length;i++) {
     sheet.getCell(`${columnToLetter(1)}${3+i}`).value=`${candidates[i].name}`;
-    sheet.getCell(`${columnToLetter(1)}${3+1}`).border = {
+    sheet.getCell(`${columnToLetter(1)}${3+i}`).border = {
       top: {style:'thin'},
       left: {style:'thin'},
       bottom: {style:'thin'},
@@ -131,7 +140,15 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
     sheet.getCell(`${columnToLetter(2)}${3+i}`).value=`${candidates[i].Attendances.length}`;
     sheet.getCell(`${columnToLetter(2)}${3+i}`).alignment = {horizontal: 'center'};
 
-    sheet.getCell(`${columnToLetter(2)}${3+1}`).border = {
+    sheet.getCell(`${columnToLetter(2)}${3+i}`).border = {
+      top: {style:'thin'},
+      left: {style:'thin'},
+      bottom: {style:'thin'},
+      right: {style:'thin'}
+    };
+    sheet.getCell(`${columnToLetter(3)}${3+i}`).value=`${candidates[i].Attendances.filter(a => a.served).length}`;
+    sheet.getCell(`${columnToLetter(3)}${3+i}`).alignment = {horizontal: 'center'};
+    sheet.getCell(`${columnToLetter(3)}${3+i}`).border = {
       top: {style:'thin'},
       left: {style:'thin'},
       bottom: {style:'thin'},
@@ -140,19 +157,19 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
 
     if(details) {
       for(var j = 0;j<attendanceRegistry.length;j++) {
-        sheet.getCell(`${columnToLetter(3+j)}${3+i}`).value= attendanceRegistry[j][candidates[i].id]||"";
-        sheet.getCell(`${columnToLetter(3+j)}${3+i}`).fill = {
+        sheet.getCell(`${columnToLetter(4+j)}${3+i}`).value= attendanceRegistry[j][candidates[i].id]||"";
+        sheet.getCell(`${columnToLetter(4+j)}${3+i}`).fill = {
           type: 'pattern',
           pattern:'solid',
           fgColor:{argb: attendanceRegistry[j][candidates[i].id] ? '42F551' : 'FFFF0000'},
         }
-        sheet.getCell(`${columnToLetter(3+j)}${3+i}`).border = {
+        sheet.getCell(`${columnToLetter(4+j)}${3+i}`).border = {
           top: {style:'thin'},
           left: {style:'thick'},
           bottom: {style:'thin'},
           right: {style:'thick'}
         };
-        sheet.getCell(`${columnToLetter(3+j)}${3+i}`).alignment =  {horizontal: 'center'};
+        sheet.getCell(`${columnToLetter(4+j)}${3+i}`).alignment =  {horizontal: 'center'};
       }
     }
 
@@ -164,8 +181,8 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
 
   AdjustColumnWidth(sheet);
   //1. fejlécsor
-  sheet.mergeCells(`${columnToLetter(1)}1:${columnToLetter(details?attendanceRegistry.length+2:2)}1`);
-  sheet.getCell(`${columnToLetter(details?attendanceRegistry.length+2:2)}1`).value = `${group.name} miserészvételi adatok (${startDate.replace(/-/g,".")}. - ${endDate.replace(/-/g,".")}.)`;
+  sheet.mergeCells(`${columnToLetter(1)}1:${columnToLetter(details?attendanceRegistry.length+3:3)}1`);
+  sheet.getCell(`${columnToLetter(details?attendanceRegistry.length+3:3)}1`).value = `${group.name} miserészvételi adatok (${startDate.replace(/-/g,".")}. - ${endDate.replace(/-/g,".")}.)`;
   sheet.getCell(`${columnToLetter(1)}1`).alignment = {horizontal: 'center'};
   sheet.getCell(`${columnToLetter(1)}1`).border = {
     top: {style:'thin'},
