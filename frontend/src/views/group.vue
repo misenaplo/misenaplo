@@ -39,7 +39,14 @@
             </tbody>
           </v-simple-table>
           <h1>Csoporttagok</h1>
-          <v-btn color="primary" rounded :href="`${this.axios.defaults.baseURL}group/${$route.params.id}/generateCards`" target="_blank"><v-icon>fa-download</v-icon>Kártyák tömeges letöltése</v-btn>
+          <v-select v-model="perPage" :items="perPageOptions" label="Kártya / oldal" dense
+            outlined hide-details style="max-width: 150px" class="d-inline-block mr-2" />
+          <v-btn color="primary" rounded class="mb-2"
+            :href="`${this.axios.defaults.baseURL}group/${$route.params.id}/generateCardsPDF?perPage=${perPage}`"
+            target="_blank"><v-icon>fa-file-pdf-o</v-icon>PDF letöltés</v-btn>
+          <v-btn color="primary" rounded class="mb-2"
+            :href="`${this.axios.defaults.baseURL}group/${$route.params.id}/generateCards`"
+            target="_blank"><v-icon>fa-download</v-icon>ZIP letöltés</v-btn>
           <candidates :groupId="$route.params.id"/>
         </v-tab-item>
         <!--/Csoport-->
@@ -65,6 +72,8 @@ export default {
   data: function () {
     return {
       group: {},
+      perPage: 6,
+      perPageOptions: [1,2,4,6,8,9,12,14,16],
       dialogs: {
 
       },

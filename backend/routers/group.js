@@ -7,6 +7,7 @@ const permissions = require("../plugins/permissions/parish");
 const parishPermissions = require("../plugins/permissions/parish");
 const { isUUID, isDate } = require("validator")
 const multipleCardGenerator = require('../plugins/QRCardGenerator/multipleCardGenerator');
+const generatePDF = require('../plugins/QRCardGenerator/generatePDF');
 const contentDisposition = require('content-disposition')
 const groupAttendanceXLSX = require("../plugins/xlsx-templates/groupAttendance");
 
@@ -288,6 +289,21 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         const zip = await multipleCardGenerator(candidates);
         res.setHeader('Content-Disposition', contentDisposition(`Kártyák ${req.group.name}.zip`.replace(/[#<>%&*{}?/\\$+!`~|"=:@]/g,""),  {type: "attachment"}))
         return res.send(Buffer.from(zip, 'base64'));
+    })
+
+    router.get("/:id/generateCardsPDF",middlewares.isAuthenticated,middlewares.roleCheck(roles.catechist),middlewares.includeToReq.group(sequelize,null,null)["req.params.id"], middlewares.hasPermission.group(permissions.getDetails), async function(req,res,next) {
+        const perPageOptions = [1,2,4,6,8,9,12,14,16];
+        let perPage = parseInt(req.query.perPage) || 6;
+        if (!perPageOptions.includes(perPage)) perPage = 6;
+
+        const candidates = await req.group.getCandidates({attributes: ['id', 'name'], through: {attributes: []}})
+        if(candidates.length==0) {
+            return res.send("<h1>Nincsen résztvevő a csoportban</h1>")
+        }
+        const pdf = await generatePDF(candidates, perPage);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', contentDisposition(`Kártyák ${req.group.name}.pdf`.replace(/[#<>%&*{}?/\\$+!`~|"=:@]/g,""),  {type: "attachment"}))
+        return res.send(pdf);
     })
 
     router.get("/:id/xlsx/attendance/:startDate/:endDate/:minimalAttendance/:details", middlewares.isAuthenticated,middlewares.roleCheck(roles.catechist), middlewares.includeToReq.group(sequelize,null,null)["req.params.id"], middlewares.hasPermission.group(permissions.getDetails), async function (req,res,next) {
