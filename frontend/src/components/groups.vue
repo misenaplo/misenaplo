@@ -50,6 +50,14 @@
 						</template>
 					</v-tooltip>
 					<v-tooltip top>
+						Összevonás mással
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn icon color="teal" v-on="on" v-bind="attrs" @click="openMergeDialog(item)">
+								<v-icon>fa-code-fork</v-icon>
+							</v-btn>
+						</template>
+					</v-tooltip>
+					<v-tooltip top>
 						Törlés
 						<template v-slot:activator="{ on, attrs }">
 							<v-btn icon color="red accent-4" v-on="on" v-bind="attrs" @click="dialogs.deleteGroup.groupId=item.id">
@@ -163,6 +171,36 @@
 					</v-card>
 				</v-dialog>
 			</v-row>
+			<v-row justify="center">
+				<v-dialog v-model="dialogs.mergeGroup.show" persistent max-width="600px">
+					<v-card>
+						<v-card-title>
+							<span class="headline">Csoportok összevonása</span>
+						</v-card-title>
+						<v-card-text>
+							<v-container>
+								<v-select :items="mergeableGroups" item-text="name" item-value="id"
+									v-model="dialogs.mergeGroup.targetGroupId" label="Célcsoport" rounded outlined
+									prepend-inner-icon="fa-users" />
+								<v-alert v-if="dialogs.mergeGroup.sourceGroup" type="warning" dense outlined>
+									A(z) <b>{{ dialogs.mergeGroup.sourceGroup.name }}</b> csoport összes tagja átkerül a
+									kiválasztott célcsoportba, majd a forráscsoport törlődik.
+								</v-alert>
+							</v-container>
+						</v-card-text>
+						<v-card-actions>
+							<v-spacer></v-spacer>
+							<v-btn color="red accent-4" text @click="dialogs.mergeGroup.show = false">
+								Mégsem
+							</v-btn>
+							<v-btn color="blue darken-1" text @click="merge()"
+								v-if="dialogs.mergeGroup.targetGroupId">
+								Összevonás
+							</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+			</v-row>
 
 		</template>
 	</div>
@@ -238,6 +276,12 @@ export default {
 					changed: {
 						name: ''
 					}
+				},
+				mergeGroup: {
+					show: false,
+					sourceGroup: null,
+					targetGroupId: null,
+					myGroups: []
 				}
 			},
 			roles
@@ -246,6 +290,10 @@ export default {
 	computed: {
 		isOrganization() {
 			return this.parishId !== null && this.parishId !== undefined
+		},
+		mergeableGroups() {
+			const sourceId = this.dialogs.mergeGroup.sourceGroup ? this.dialogs.mergeGroup.sourceGroup.id : null
+			return this.dialogs.mergeGroup.myGroups.filter(g => g.id != sourceId)
 		}
 	},
 	watch: {
@@ -262,6 +310,13 @@ export default {
 				for (const [key, value] of Object.entries(G)) {
 					this.dialogs.changeGroup.changed[key] = value
 				}
+			}
+		},
+		'dialogs.mergeGroup.show': function (newVal) {
+			if (!newVal) {
+				this.dialogs.mergeGroup.sourceGroup = null
+				this.dialogs.mergeGroup.targetGroupId = null
+				this.dialogs.mergeGroup.myGroups = []
 			}
 		}
 	},
@@ -333,6 +388,29 @@ export default {
 					this.groups.splice(this.groups.findIndex(g => g.id==this.dialogs.deleteGroup.id),1)
 					this.$store.commit('setSnack', 'A törlés sikeresen megtörtént.')
 					this.dialogs.deleteGroup.show=false
+				}
+			})
+		},
+		openMergeDialog: function (group) {
+			this.dialogs.mergeGroup.sourceGroup = group
+			this.dialogs.mergeGroup.targetGroupId = null
+			this.dialogs.mergeGroup.myGroups = []
+			this.axios({ url: "group/myList", method: "GET" }).then((response) => {
+				if (response.data.success) {
+					this.dialogs.mergeGroup.myGroups = response.data.data.groups
+					this.dialogs.mergeGroup.show = true
+				}
+			})
+		},
+		merge: function () {
+			const sourceId = this.dialogs.mergeGroup.sourceGroup.id
+			this.axios({ url: `group/${sourceId}/merge`, method: "POST", data: { targetGroupId: this.dialogs.mergeGroup.targetGroupId } }).then((response) => {
+				if (response.data.success) {
+					this.dialogs.mergeGroup.show = false
+					this.$store.commit('setSnack', 'A csoportok összevonása sikeresen megtörtént.')
+					this.getGroups()
+				} else if (response.data.error && response.data.error.message) {
+					this.$store.commit('setSnack', response.data.error.message)
 				}
 			})
 		}

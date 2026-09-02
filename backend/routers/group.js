@@ -10,6 +10,7 @@ const multipleCardGenerator = require('../plugins/QRCardGenerator/multipleCardGe
 const generatePDF = require('../plugins/QRCardGenerator/generatePDF');
 const contentDisposition = require('content-disposition')
 const groupAttendanceXLSX = require("../plugins/xlsx-templates/groupAttendance");
+const groupPermissions = require('../plugins/permissions/group');
 
 module.exports = function (passport, sequelize, mailer, middlewares, roles, codes) {
     const express = require('express')
@@ -304,6 +305,43 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', contentDisposition(`Kártyák ${req.group.name}.pdf`.replace(/[#<>%&*{}?/\\$+!`~|"=:@]/g,""),  {type: "attachment"}))
         return res.send(pdf);
+    })
+
+    router.post("/:id/merge", middlewares.isAuthenticated, middlewares.roleCheck(roles.catechist), middlewares.requiredField.body(["targetGroupId"]), middlewares.includeToReq.group(sequelize,null,null)["req.params.id"], middlewares.hasPermission.group(permissions.getDetails), async function(req,res,next) {
+        const invalidFields = [];
+        if(!isUUID(req.body.targetGroupId, 4)) invalidFields.push("targetGroupId");
+        if(invalidFields.length>0) {
+            return res.status(400).json(errorGenerator.FAILED_VALIDATION(invalidFields));
+        }
+        if(req.body.targetGroupId == req.group.id) {
+            return res.status(400).json(errorGenerator.FAILED_VALIDATION(["targetGroupId"]));
+        }
+        const targetGroup = await sequelize.models.Group.findOne({where: {id: req.body.targetGroupId}});
+        if(!targetGroup) {
+            return res.status(404).json(errorGenerator.INSTANCE_NOT_FOUND("Célcsoport nem található"));
+        }
+
+        const hasPermission = await groupPermissions.check(req.group, req.user, groupPermissions.changeDetails);
+        if(!hasPermission) {
+            return res.status(403).json(errorGenerator.INSUFFICIENT_PRIVILEGES());
+        }
+        const hasTargetPermission = await groupPermissions.check(targetGroup, req.user, groupPermissions.changeDetails);
+        if(!hasTargetPermission) {
+            return res.status(403).json(errorGenerator.INSUFFICIENT_PRIVILEGES());
+        }
+
+        const transaction = await sequelize.transaction();
+        try {
+            const candidates = await req.group.getCandidates({transaction});
+            await targetGroup.addCandidates(candidates, {transaction});
+            await req.group.destroy({transaction});
+            await transaction.commit();
+        } catch (err) {
+            await transaction.rollback();
+            throw err;
+        }
+
+        return res.json({success: true, error: null, data: null});
     })
 
     router.get("/:id/xlsx/attendance/:startDate/:endDate/:minimalAttendance/:details", middlewares.isAuthenticated,middlewares.roleCheck(roles.catechist), middlewares.includeToReq.group(sequelize,null,null)["req.params.id"], middlewares.hasPermission.group(permissions.getDetails), async function (req,res,next) {
