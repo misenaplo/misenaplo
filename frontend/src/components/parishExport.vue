@@ -41,7 +41,7 @@
                             Ministrálási adatok letöltése xlsx formátumban
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn color="warning" fab v-on="on" v-bind="attrs"
-                                    :href="`${this.axios.defaults.baseURL}parish/${parishId}/xlsx/attendance/${params.begin}/${params.end}/0/${params.details ? 1 : 0}?hasAttendance=${params.hasAttendance ? 1 : 0}&hasServed=${params.hasServed ? 1 : 0}`"
+                                    :href="`${axios.defaults.baseURL}parish/${parishId}/xlsx/attendance/${params.begin}/${params.end}/0/${params.details ? 1 : 0}?hasAttendance=${params.hasAttendance ? 1 : 0}&hasServed=${params.hasServed ? 1 : 0}`"
                                     target="_blank"><v-icon>fa-file-excel</v-icon></v-btn>
                             </template>
                         </v-tooltip>
