@@ -3,7 +3,7 @@
         <v-card>
             <v-card-title>
                 <v-icon left>fa-file-excel</v-icon>
-                Ministrálási adatok exportálása
+                Részvételi adatok exportálása
             </v-card-title>
             <v-card-text>
                 <v-row align="start">
