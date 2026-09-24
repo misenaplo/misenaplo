@@ -5,6 +5,9 @@ const { isString, isNumber } = require("../plugins/type-check");
 const { Op } = require("sequelize");
 const permissions = require("../plugins/permissions/parish");
 const parish = require("../plugins/middlewares/hasPermission/parish");
+const { isDate } = require("validator")
+const contentDisposition = require('content-disposition')
+const parishAttendanceXLSX = require("../plugins/xlsx-templates/groupAttendance");
 
 
 module.exports = function (passport, sequelize, mailer, middlewares, roles, codes) {
@@ -137,6 +140,30 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
     router.get("/:id/groups", middlewares.isAuthenticated, middlewares.roleCheck(roles.parishOfficer), middlewares.includeToReq.parish(sequelize.models.Parish, null, null)["req.params.id"], middlewares.hasPermission.parish(permissions.getGroups), async function (req, res, next) {
         const groups = await req.parish.getGroups();
         return res.json({ success: true, error: null, data: { groups: groups } });
+    })
+
+    router.get("/:id/xlsx/attendance/:startDate/:endDate/:minimalAttendance/:details", middlewares.isAuthenticated, middlewares.roleCheck(roles.parishOfficer), middlewares.includeToReq.parish(sequelize.models.Parish, null, null)["req.params.id"], middlewares.hasPermission.parish(permissions.getDetails), async function (req, res, next) {
+        const invalidFields = [];
+        ["startDate", "endDate"].forEach(p => {
+            if (!isDate(req.params[p])) invalidFields.push(`req.params.${p}`)
+        });
+        ["minimalAttendance", "details"].forEach(p => {
+            if (!isNumber(req.params[p])) invalidFields.push(`req.params.${p}`)
+        });
+        if (invalidFields.length > 0) {
+            return res.status(400).json(errorGenerator.FAILED_VALIDATION(invalidFields));
+        }
+        const xlsx = await parishAttendanceXLSX(sequelize, req.parish, {
+            startDate: req.params.startDate,
+            endDate: req.params.endDate,
+            minimalAttendance: req.params.minimalAttendance,
+            details: req.params.details != 0,
+            requireGroupMembership: true,
+            hasAttendance: req.query.hasAttendance == '1',
+            hasServed: req.query.hasServed == '1'
+        })
+        res.setHeader('Content-Disposition', contentDisposition(`Miserészvételi adatok -  ${req.parish.name}.xlsx`.replace(/[#<>%&*{}?/\\$+!`~|"=:@]/g,""),  {type: "attachment"}))
+        return res.send(Buffer.from(xlsx, 'base64'));
     })
 
     return router

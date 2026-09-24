@@ -67,6 +67,9 @@
                             </tr>
                         </tbody>
                     </v-simple-table>
+                    <v-row class="mt-4">
+                        <parish-export :parishId="id || $route.params.id" />
+                    </v-row>
                 </v-tab-item>
                 <!--/Plébánia-->
                 <v-tab-item>
@@ -125,11 +128,13 @@ import router from '../router';
 import roleNames from '../plugins/roleNames';
 import users from '../components/users.vue';
 import groups from '../components/groups.vue';
+import parishExport from '../components/parishExport.vue';
 export default {
     props: ['id'],
     components: {
         users,
-        groups
+        groups,
+        parishExport
     },
     data: function () {
         return {

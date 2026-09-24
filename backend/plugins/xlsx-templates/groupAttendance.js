@@ -26,7 +26,8 @@ function AdjustColumnWidth(worksheet) {
     column.width = maxLength;
   });
 }
-module.exports = async (sequelize, group, startDate, endDate, minimalAttendance, details) => {
+module.exports = async (sequelize, entity, options) => {
+  const { startDate, endDate, minimalAttendance, details, requireGroupMembership = false, hasAttendance = false, hasServed = false } = options;
   var attendanceRegistry=[];
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "MisEnapló"
@@ -38,7 +39,7 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
   });
   sheet.state = 'visible';
 
-  var candidates = await group.getCandidates({
+  var candidateOptions = {
     through: {
       attributes: []
     },
@@ -51,10 +52,21 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
           [Op.between]: [startDate, endDate+" 23:59:59"]
         }
       },
-      required: minimalAttendance>0
+      required: minimalAttendance>0 || hasAttendance
     }]
-  })
-  candidates = candidates.map(c => c.toJSON()).filter(c => c.Attendances.length>=minimalAttendance).sort((a,b) => {
+  };
+  if(requireGroupMembership) {
+    candidateOptions.include.push({
+      model: sequelize.models.Group,
+      attributes: ['id'],
+      through: { attributes: [] },
+      required: true
+    });
+  }
+  var candidates = await entity.getCandidates(candidateOptions)
+  candidates = candidates.map(c => c.toJSON());
+  if(hasServed) candidates = candidates.filter(c => c.Attendances.some(a => a.served));
+  candidates = candidates.filter(c => c.Attendances.length>=minimalAttendance).sort((a,b) => {
     if (a.name < b.name) {
       return -1;
     }
@@ -182,7 +194,7 @@ module.exports = async (sequelize, group, startDate, endDate, minimalAttendance,
   AdjustColumnWidth(sheet);
   //1. fejlécsor
   sheet.mergeCells(`${columnToLetter(1)}1:${columnToLetter(details?attendanceRegistry.length+3:3)}1`);
-  sheet.getCell(`${columnToLetter(details?attendanceRegistry.length+3:3)}1`).value = `${group.name} miserészvételi adatok (${startDate.replace(/-/g,".")}. - ${endDate.replace(/-/g,".")}.)`;
+  sheet.getCell(`${columnToLetter(details?attendanceRegistry.length+3:3)}1`).value = `${entity.name} miserészvételi adatok (${startDate.replace(/-/g,".")}. - ${endDate.replace(/-/g,".")}.)`;
   sheet.getCell(`${columnToLetter(1)}1`).alignment = {horizontal: 'center'};
   sheet.getCell(`${columnToLetter(1)}1`).border = {
     top: {style:'thin'},

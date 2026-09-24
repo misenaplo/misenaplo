@@ -355,7 +355,12 @@ module.exports = function (passport, sequelize, mailer, middlewares, roles, code
         if(invalidFields.length>0) {
             return res.status(400).json(errorGenerator.FAILED_VALIDATION(invalidFields));
         }
-        const xlsx = await groupAttendanceXLSX(sequelize, req.group,req.params.startDate,req.params.endDate,req.params.minimalAttendance,req.params.details!=0)
+        const xlsx = await groupAttendanceXLSX(sequelize, req.group, {
+            startDate: req.params.startDate,
+            endDate: req.params.endDate,
+            minimalAttendance: req.params.minimalAttendance,
+            details: req.params.details != 0
+        })
         res.setHeader('Content-Disposition', contentDisposition(`Miserészvételi adatok -  ${req.group.name}.xlsx`.replace(/[#<>%&*{}?/\\$+!`~|"=:@]/g,""),  {type: "attachment"}))
         return res.send(Buffer.from(xlsx, 'base64'));
     })
